@@ -29,7 +29,7 @@ export default tseslint.config(
       '@typescript-eslint/interface-name-prefix': 'off',
       '@typescript-eslint/no-unsafe-assignment': 'off',
       '@typescript-eslint/no-unsafe-member-access': 'off',
-      "@typescript-eslint/no-unsafe-return": 'off',
+      '@typescript-eslint/no-unsafe-return': 'off',
       '@typescript-eslint/no-unsafe-call': 'off',
 
       // Warning rules
@@ -39,6 +39,42 @@ export default tseslint.config(
       // Error rules
       '@typescript-eslint/no-explicit-any': 'error',
       '@typescript-eslint/no-misused-promises': 'error',
+      '@typescript-eslint/consistent-type-imports': [
+        'error',
+        { prefer: 'type-imports' },
+      ],
+      '@typescript-eslint/explicit-module-boundary-types': [
+        'error',
+        {
+          allowArgumentsExplicitlyTypedAsAny: false,
+          allowDirectConstAssertionInArrowFunctions: true,
+          allowHigherOrderFunctions: true,
+          allowTypedFunctionExpressions: true,
+        },
+      ],
+      '@typescript-eslint/naming-convention': [
+        'error',
+        {
+          selector: 'class',
+          format: ['PascalCase'],
+        },
+        {
+          selector: 'interface',
+          format: ['PascalCase'],
+        },
+        {
+          selector: 'typeAlias',
+          format: ['PascalCase'],
+        },
+        {
+          selector: 'enum',
+          format: ['PascalCase'],
+        },
+        {
+          selector: 'enumMember',
+          format: ['UPPER_CASE', 'PascalCase'],
+        },
+      ],
       'no-console': ['error', { allow: ['warn', 'error'] }],
       'prettier/prettier': [
         'error',

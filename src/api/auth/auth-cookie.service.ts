@@ -6,7 +6,7 @@ export class AuthCookieService {
   private readonly REFRESH_TOKEN_COOKIE_NAME = 'refreshToken';
   private readonly REFRESH_TOKEN_EXPIRY = 21600 * 900000; // 225 days
 
-  setRefreshTokenCookie(res: Response, refreshToken: string) {
+  setRefreshTokenCookie(res: Response, refreshToken: string): void {
     res.cookie(this.REFRESH_TOKEN_COOKIE_NAME, refreshToken, {
       httpOnly: true,
       expires: new Date(Date.now() + this.REFRESH_TOKEN_EXPIRY),
@@ -30,7 +30,7 @@ export class AuthCookieService {
     return refreshToken;
   }
 
-  clearRefreshTokenCookie(res: Response) {
+  clearRefreshTokenCookie(res: Response): void {
     res.clearCookie(this.REFRESH_TOKEN_COOKIE_NAME);
   }
 }

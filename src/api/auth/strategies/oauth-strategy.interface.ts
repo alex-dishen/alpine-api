@@ -1,4 +1,4 @@
-import { UserProvider } from 'src/db/types/db.types';
+import type { UserProvider } from 'src/db/types/db.types';
 
 export type OAuthUserData = {
   email: string;

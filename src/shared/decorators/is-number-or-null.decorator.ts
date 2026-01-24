@@ -1,10 +1,11 @@
-import { isInt, registerDecorator, ValidationOptions } from 'class-validator';
+import type { ValidationOptions } from 'class-validator';
+import { isInt, registerDecorator } from 'class-validator';
 
-export default function IsNullOrNumberDecorator(validationOptions?: ValidationOptions) {
-  return function (object: object, propertyName: string) {
+export default function IsNullOrNumberDecorator(validationOptions?: ValidationOptions): PropertyDecorator {
+  return function (object: object, propertyName: string | symbol) {
     registerDecorator({
       target: object.constructor,
-      propertyName: propertyName,
+      propertyName: String(propertyName),
       options: validationOptions,
       constraints: [],
       validator: {

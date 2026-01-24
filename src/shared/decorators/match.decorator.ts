@@ -7,11 +7,11 @@ import {
   ValidatorConstraintInterface,
 } from 'class-validator';
 
-export const Match = <T>(property: keyof T, validationOptions?: ValidationOptions) => {
-  return (object: object, propertyName: string) => {
+export const Match = <T>(property: keyof T, validationOptions?: ValidationOptions): PropertyDecorator => {
+  return (object: object, propertyName: string | symbol) => {
     registerDecorator({
       target: object.constructor,
-      propertyName,
+      propertyName: String(propertyName),
       options: validationOptions,
       constraints: [property],
       validator: MatchConstraint,

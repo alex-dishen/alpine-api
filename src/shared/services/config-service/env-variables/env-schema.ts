@@ -16,6 +16,7 @@ export enum NodeEnvironment {
 }
 
 export class EnvironmentVariables {
+  // App
   @IsEnum(NodeEnvironment)
   NODE_ENV: NodeEnvironment;
 
@@ -24,21 +25,26 @@ export class EnvironmentVariables {
   @Max(65535)
   PORT: number;
 
+  // Database
   @IsString()
   @IsNotEmpty()
   DATABASE_URL: string;
 
+  // Redis
   @IsString()
   @IsNotEmpty()
-  GEMINI_API_KEY: string;
+  REDISHOST: string;
+
+  @IsNumber()
+  @Min(0)
+  @Max(65535)
+  REDISPORT: number;
 
   @IsString()
   @IsNotEmpty()
-  @Matches(/^https?:\/\/[^,\s]+(,\s*https?:\/\/[^,\s]+)*$/, {
-    message: 'CORS_ORIGIN must be a valid URL or comma-separated URLs starting with http:// or https://',
-  })
-  CORS_ORIGIN: string;
+  REDISPASSWORD: string;
 
+  // Auth
   @IsString()
   @IsNotEmpty()
   COOKIE_SECRET: string;
@@ -67,24 +73,29 @@ export class EnvironmentVariables {
 
   @IsString()
   @IsNotEmpty()
+  @Matches(/^https?:\/\/[^,\s]+(,\s*https?:\/\/[^,\s]+)*$/, {
+    message: 'CORS_ORIGIN must be a valid URL or comma-separated URLs starting with http:// or https://',
+  })
+  CORS_ORIGIN: string;
+
+  // LLM
+  @IsString()
+  @IsNotEmpty()
+  GEMINI_API_KEY: string;
+
+  // OAuth - Google
+  @IsString()
+  @IsNotEmpty()
   GOOGLE_CLIENT_ID: string;
 
   @IsString()
   @IsNotEmpty()
   GOOGLE_CLIENT_SECRET: string;
 
+  // AWS
   @IsString()
   @IsNotEmpty()
-  REDISHOST: string;
-
-  @IsNumber()
-  @Min(0)
-  @Max(65535)
-  REDISPORT: number;
-
-  @IsString()
-  @IsNotEmpty()
-  REDISPASSWORD: string;
+  AWS_REGION: string;
 
   @IsString()
   @IsNotEmpty()
@@ -93,10 +104,6 @@ export class EnvironmentVariables {
   @IsString()
   @IsNotEmpty()
   AWS_SECRET_ACCESS_KEY: string;
-
-  @IsString()
-  @IsNotEmpty()
-  AWS_REGION: string;
 
   @IsString()
   @IsNotEmpty()

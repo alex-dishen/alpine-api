@@ -1,8 +1,9 @@
-import { Type, applyDecorators } from '@nestjs/common';
+import type { Type } from '@nestjs/common';
+import { applyDecorators } from '@nestjs/common';
 import { ApiExtraModels, ApiOkResponse, getSchemaPath } from '@nestjs/swagger';
 import { CursorPaginatedResult, OffsetPaginatedResult } from '../dtos/pagination.dto';
 
-export const ApiOffsetPaginatedResponse = <TModel extends Type<unknown>>(model: TModel) => {
+export const ApiOffsetPaginatedResponse = <TModel extends Type<unknown>>(model: TModel): MethodDecorator & ClassDecorator => {
   return applyDecorators(
     ApiOkResponse({
       schema: {
@@ -23,7 +24,7 @@ export const ApiOffsetPaginatedResponse = <TModel extends Type<unknown>>(model: 
   );
 };
 
-export const ApiCursorPaginatedResponse = <TModel extends Type<unknown>>(model: TModel) => {
+export const ApiCursorPaginatedResponse = <TModel extends Type<unknown>>(model: TModel): MethodDecorator & ClassDecorator => {
   return applyDecorators(
     ApiOkResponse({
       schema: {

@@ -1,7 +1,7 @@
 import { Base64 } from 'src/shared/utils/base64';
 import { InternalServerErrorException } from '@nestjs/common';
-import { ReferenceExpression, SelectQueryBuilder } from 'kysely';
-import {
+import type { ReferenceExpression, SelectQueryBuilder } from 'kysely';
+import type {
   CursorPaginatedResult,
   OffsetPaginatedResult,
   OffsetPaginateOptions,

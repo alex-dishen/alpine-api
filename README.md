@@ -1,114 +1,53 @@
-# Alpine Api
+# Alpine API
 
-## 🚨 The most important information
+Welcome to the Alpine API repository. This is a NestJS server application providing the backend for the Alpine job search assistance tool, featuring authentication, user management, and AI-powered features.
 
-- pre-checks for the script `start` is turned off for the sake of hosting on railway
+## Documentation
 
-<br/>
+This repository contains comprehensive documentation to help you understand and work with the project:
 
-A NestJS-based server application using Prisma for migrations management, Redis for caching and Kysely for database management.
+- **[Architecture](docs/ARCHITECTURE.md)** - Detailed explanation of the application architecture, folder structure, and patterns
+- **[Setup Guide](docs/SETUP.md)** - Step-by-step installation and development environment setup instructions
+- **[Contributing](docs/CONTRIBUTING.md)** - Code standards, git workflow, and pull request guidelines
+- **[Naming Conventions](docs/NAMING_CONVENTIONS.md)** - File and folder naming standards
 
-## Prerequisites
+## Quick Start
 
-- Node.js v22.14.0
+```bash
+# Install dependencies
+npm install
 
-<br/>
+# Start Docker services (PostgreSQL, Redis)
+docker compose up -d
 
-## Project Setup
+# Run database migrations
+npx prisma migrate dev
 
-1. Clone the repository
+# Start development server
+npm run start:dev
 
-   ```bash
-   git clone https://github.com/alex-dishen/alpine-api.git
-   ```
+# Run linting
+npm run lint
 
-2. Install dependencies:
+# Run tests
+npm run test
 
-   ```bash
-   npm install
-   ```
+# Build for production
+npm run build
+```
 
-3. Create a `.env` file in the root directory with the following variables:
+## Tech Stack
 
-   ```env
-   NODE_ENV='local'
-
-   PORT=3001
-
-   REDIS_URL= redis://localhost:6379
-   DATABASE_URL=postgresql://postgres:postgres@localhost:55001/alpine
-
-   ACCESS_TOKEN_SECRET=provide your own secret, can be a random string
-   COOKIE_SECRET=provide your own secret, can be a random string
-   REFRESH_TOKEN_SECRET=provide your own secret, can be a random string
-
-   CORS_ORIGIN=...
-
-   ACCESS_TOKEN_EXPIRY_TIME=provide your own time like 2h or 30m
-   REFRESH_TOKEN_EXPIRY_TIME=provide your own time like 2h or 30m
-   ```
-
-4. The project uses Docker Compose to run the required services. To start them run the following command in the project directory:
-
-   ```bash
-   docker compose up -d
-   ```
-
-   This will start:
-
-   - PostgreSQL (port 55001)
-   - Redis (port 6379)
-
-5. Migrate your running database:
-
-   ```bash
-   npx prisma migrate dev
-   ```
-
-6. Starting the Application
-
-   ```bash
-   # Development mode
-   npm run start:dev
-
-   # Debug mode
-   npm run start:debug
-   ```
-
-   The application will run pre-checks before starting to ensure all requirements are met.
-
-<br/>
-
-## Database Migration
-
-1. Make a change in `schema.prisma` file
-
-2. Migrate the db based on your changes
-
-   ```bash
-   npx prisma migrate dev
-   ```
-
-If you want to first generate the file and take a look at what will be applied during migration, you can follow these steps:
-
-1. Make a change in `schema.prisma` file
-
-2. Create a migration file
-
-   ```bash
-   npx prisma migrate dev --create-only
-   ```
-
-3. Migrate the db
-
-   ```bash
-   npx prisma migrate dev
-   ```
-
-<br/>
-
-## API Documentation
-
-> 💡 API documentation is not available in production
-
-Swagger/OpenAPI documentation can be accessed at `http://localhost:3001/api`
+| Category | Technology |
+|----------|------------|
+| Framework | NestJS + TypeScript |
+| Database | PostgreSQL |
+| ORM | Prisma (migrations) + Kysely (queries) |
+| Cache | Redis |
+| Auth | JWT + OAuth (Google, LinkedIn, Apple) |
+| Validation | class-validator |
+| Documentation | Swagger/OpenAPI |
+| LLM | Google Gemini |
+| Storage | AWS S3 |
+| Linting | ESLint + Prettier |
+| Git Hooks | Husky |

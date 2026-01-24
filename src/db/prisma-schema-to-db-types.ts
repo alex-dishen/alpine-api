@@ -1,4 +1,5 @@
-import { DMMF, generatorHandler, GeneratorOptions } from '@prisma/generator-helper';
+import type { DMMF, GeneratorOptions } from '@prisma/generator-helper';
+import { generatorHandler } from '@prisma/generator-helper';
 import * as fs from 'fs';
 
 const toSnakeCase = (str: string): string => {

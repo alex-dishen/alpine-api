@@ -4,7 +4,7 @@ import { Reflector } from '@nestjs/core';
 import { AppConfigService } from '../services/config-service/config.service';
 import { CanActivate, ExecutionContext, Injectable, SetMetadata, UnauthorizedException } from '@nestjs/common';
 
-export const IgnoreAuthGuard = () => SetMetadata('isAuthGuardIgnored', true);
+export const IgnoreAuthGuard = (): ReturnType<typeof SetMetadata> => SetMetadata('isAuthGuardIgnored', true);
 
 @Injectable()
 export class JwtAuthGuard implements CanActivate {

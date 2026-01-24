@@ -92,10 +92,33 @@ const validateCodeStyle = async (): Promise<void> => {
   });
 };
 
+const checkCircularDependencies = async (): Promise<void> => {
+  return new Promise((resolve, reject) => {
+    const spinnerInterval = loader('Checking for circular dependencies');
+    exec('npm run check:circular', (error, stdout, stderr) => {
+      clearInterval(spinnerInterval);
+      emptyLine();
+
+      if (error) {
+        console.log(stdout);
+
+        if (stderr) {
+          console.log(stderr);
+        }
+        reject(new Error('Circular dependencies detected 🔄\n'));
+      } else {
+        logSuccess('No circular dependencies found 🎯\n');
+        resolve();
+      }
+    });
+  });
+};
+
 const runPreCommitScripts = async (): Promise<void> => {
   try {
     await validateTypes();
     await validateCodeStyle();
+    await checkCircularDependencies();
   } catch (error) {
     if (error instanceof Error) {
       logError(error.message);

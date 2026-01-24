@@ -1,4 +1,4 @@
-import { IsolationLevel } from 'kysely';
+import type { IsolationLevel } from 'kysely';
 
 export enum Propagation {
   // If a transaction already exists, use it. If not, create a new one. (Default)

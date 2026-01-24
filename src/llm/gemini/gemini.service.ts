@@ -1,4 +1,5 @@
-import { GenerateContentParameters, GoogleGenAI } from '@google/genai';
+import type { GenerateContentParameters, GenerateContentResponse } from '@google/genai';
+import { GoogleGenAI } from '@google/genai';
 import { Injectable } from '@nestjs/common';
 
 @Injectable()
@@ -10,14 +11,20 @@ export class GeminiService {
     this.gemini = new GoogleGenAI({});
   }
 
-  async askGeminiWithStream(data: GenerateContentParameters) {
-    const response = await this.gemini.models.generateContentStream({ model: data.model, contents: data.contents });
+  async askGeminiWithStream(data: GenerateContentParameters): Promise<AsyncGenerator<GenerateContentResponse>> {
+    const response = await this.gemini.models.generateContentStream({
+      model: data.model,
+      contents: data.contents,
+    });
 
     return response;
   }
 
-  async askGemini(data: GenerateContentParameters) {
-    const response = await this.gemini.models.generateContent({ model: data.model, contents: data.contents });
+  async askGemini(data: GenerateContentParameters): Promise<GenerateContentResponse> {
+    const response = await this.gemini.models.generateContent({
+      model: data.model,
+      contents: data.contents,
+    });
 
     return response;
   }
