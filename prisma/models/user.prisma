@@ -1,0 +1,35 @@
+enum UserProvider {
+    GOOGLE   @map("google")
+    LINKEDIN @map("linkedin")
+    APPLE    @map("apple")
+}
+
+model User {
+    id         String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+    email      String    @unique
+    first_name String
+    last_name  String
+    avatar_id  String?
+    password   String? // Null when added with google or other providers
+    created_at DateTime  @default(now())
+    updated_at DateTime? @updatedAt
+
+    userAuthProviders UserAuthProvider[]
+
+    @@map("users")
+}
+
+model UserAuthProvider {
+    id             String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+    user_id        String       @db.Uuid
+    provider       UserProvider
+    provider_id    String
+    provider_email String?
+    created_at     DateTime     @default(now())
+    updated_at     DateTime?    @updatedAt
+
+    user User @relation(fields: [user_id], references: [id])
+
+    @@unique([user_id, provider])
+    @@map("user_auth_providers")
+}

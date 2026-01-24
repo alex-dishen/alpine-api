@@ -1,0 +1,8 @@
+generator kysely {
+  provider = "ts-node ./src/db/prisma-schema-to-db-types.ts"
+  output   = "../src/db/types/db.types.ts"
+}
+
+datasource db {
+  provider = "postgresql"
+}
