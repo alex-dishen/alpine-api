@@ -23,6 +23,28 @@
 - Wrap related operations in transactions
 - Never expose raw database entities - use DTOs
 
+### Database Migrations
+
+Prisma does not support adding comments to tables and columns in the schema file. After creating a new migration with `npx prisma migrate dev --name <name> --create-only`, you **must manually add SQL comments** to the generated migration file before applying it.
+
+**Required comments:**
+- Table comments: `COMMENT ON TABLE "table_name" IS 'Description';`
+- Column comments: `COMMENT ON COLUMN "table_name"."column_name" IS 'Description';`
+- Enum comments: `COMMENT ON TYPE "EnumName" IS 'Description';`
+
+**Example:**
+```sql
+-- After CREATE TABLE statement
+COMMENT ON TABLE "users" IS 'Core user accounts for the application';
+COMMENT ON COLUMN "users"."email" IS 'User email address, used for authentication';
+COMMENT ON COLUMN "users"."password" IS 'Hashed password, null when user signed up via OAuth';
+```
+
+**Workflow:**
+1. Create migration: `npx prisma migrate dev --name <name> --create-only`
+2. Edit the generated SQL file to add comments
+3. Apply migration: `npx prisma migrate deploy`
+
 ## Git Workflow
 
 ### Branch Naming

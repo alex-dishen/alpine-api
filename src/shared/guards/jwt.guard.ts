@@ -1,4 +1,3 @@
-import { Request } from 'express';
 import { JwtService } from '@nestjs/jwt';
 import { Reflector } from '@nestjs/core';
 import { AppConfigService } from '../services/config-service/config.service';
@@ -14,24 +13,18 @@ export class JwtAuthGuard implements CanActivate {
     private readonly reflector: Reflector,
   ) {}
 
-  private extractTokenFromHeader(request: Request): string | undefined {
-    const [type, token] = request.headers.authorization?.split(' ') ?? [];
-
-    return type === 'Bearer' ? token : undefined;
-  }
-
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const isIgnoreTenantGuard = this.reflector.get<boolean>('isAuthGuardIgnored', context.getHandler());
 
     if (isIgnoreTenantGuard) return true;
 
     const request = context.switchToHttp().getRequest();
-    const token = this.extractTokenFromHeader(request);
+    const accessToken = request.signedCookies?.accessToken as string | undefined;
 
-    if (!token) throw new UnauthorizedException();
+    if (!accessToken) throw new UnauthorizedException();
 
     try {
-      const payload = await this.jwtService.verifyAsync(token, {
+      const payload = await this.jwtService.verifyAsync(accessToken, {
         secret: this.config.get('ACCESS_TOKEN_SECRET'),
       });
 

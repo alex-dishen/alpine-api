@@ -11,12 +11,26 @@ export class GoogleOAuthStrategy implements IOAuthStrategy {
 
   constructor(private config: AppConfigService) {}
 
-  async authenticate(code: string): Promise<OAuthUserData> {
-    const oAuthClient = new OAuth2Client(
+  private createOAuthClient(): OAuth2Client {
+    return new OAuth2Client(
       this.config.get('GOOGLE_CLIENT_ID'),
       this.config.get('GOOGLE_CLIENT_SECRET'),
-      'postmessage',
+      this.config.get('GOOGLE_CALLBACK_URL'),
     );
+  }
+
+  getAuthorizationUrl(state: string): string {
+    const oAuthClient = this.createOAuthClient();
+
+    return oAuthClient.generateAuthUrl({
+      access_type: 'offline',
+      scope: ['openid', 'email', 'profile'],
+      state,
+    });
+  }
+
+  async authenticate(code: string): Promise<OAuthUserData> {
+    const oAuthClient = this.createOAuthClient();
 
     const { tokens } = await oAuthClient.getToken(code);
     oAuthClient.setCredentials(tokens);

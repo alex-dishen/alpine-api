@@ -6,6 +6,7 @@ import { AuthController } from './auth.controller';
 import { AuthRepository } from './auth.repository';
 import { UserModule } from 'src/api/user/user.module';
 import { AuthCookieService } from './auth-cookie.service';
+import { OAuthStateService } from './oauth-state.service';
 import { GoogleOAuthStrategy } from './strategies/google.strategy';
 // import { LinkedInOAuthStrategy } from './strategies/linkedin.strategy';
 // import { AppleOAuthStrategy } from './strategies/apple.strategy';
@@ -18,6 +19,7 @@ import { OAuthStrategyFactory } from './strategies/oauth-strategy.factory';
     AuthRepository,
     AuthService,
     AuthCookieService,
+    OAuthStateService,
     TokenService,
     GoogleOAuthStrategy,
     // LinkedInOAuthStrategy,

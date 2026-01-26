@@ -83,6 +83,11 @@ export class EnvironmentVariables {
   @IsNotEmpty()
   GEMINI_API_KEY: string;
 
+  // Frontend
+  @IsString()
+  @IsNotEmpty()
+  FRONTEND_URL: string;
+
   // OAuth - Google
   @IsString()
   @IsNotEmpty()
@@ -91,6 +96,10 @@ export class EnvironmentVariables {
   @IsString()
   @IsNotEmpty()
   GOOGLE_CLIENT_SECRET: string;
+
+  @IsString()
+  @IsNotEmpty()
+  GOOGLE_CALLBACK_URL: string;
 
   // AWS
   @IsString()

@@ -23,11 +23,3 @@ export type OAuthSignInInput = {
   code: string;
   provider: UserProvider;
 };
-
-export interface IAuthService {
-  signIn(data: SignInInput): Promise<TokensOutput>;
-  signUp(data: SignUpInput): Promise<TokensOutput>;
-  signInWithOAuth(data: OAuthSignInInput): Promise<TokensOutput>;
-  refreshAccessToken(userId: string, refreshToken?: string): Promise<TokensOutput>;
-  logout(userId: string, refreshToken: string): Promise<void>;
-}

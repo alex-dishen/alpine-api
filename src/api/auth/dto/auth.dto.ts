@@ -1,6 +1,5 @@
 import { OmitType } from '@nestjs/swagger';
-import { IsEmail, IsEnum, IsJWT, IsString, IsStrongPassword } from 'class-validator';
-import { UserProvider } from 'src/db/types/db.types';
+import { IsEmail, IsJWT, IsString, IsStrongPassword } from 'class-validator';
 import { Match } from 'src/shared/decorators/match.decorator';
 
 export class SingInDto {
@@ -9,14 +8,6 @@ export class SingInDto {
 
   @IsString()
   password: string;
-}
-
-export class OAuthSignInDto {
-  @IsString()
-  code: string;
-
-  @IsEnum(UserProvider)
-  provider: UserProvider;
 }
 
 export class SignUpDto {

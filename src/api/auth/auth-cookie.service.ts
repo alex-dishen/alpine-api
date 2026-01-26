@@ -1,36 +1,46 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { Response, Request } from 'express';
+import { parseDuration } from 'src/shared/utils/parse-duration';
+import { AppConfigService } from 'src/shared/services/config-service/config.service';
+import { NodeEnvironment } from 'src/shared/services/config-service/env-variables/env-schema';
 
 @Injectable()
 export class AuthCookieService {
+  private readonly ACCESS_TOKEN_COOKIE_NAME = 'accessToken';
   private readonly REFRESH_TOKEN_COOKIE_NAME = 'refreshToken';
-  private readonly REFRESH_TOKEN_EXPIRY = 21600 * 900000; // 225 days
 
-  setRefreshTokenCookie(res: Response, refreshToken: string): void {
-    res.cookie(this.REFRESH_TOKEN_COOKIE_NAME, refreshToken, {
+  constructor(private config: AppConfigService) {}
+
+  private getCookieOptions(expiresIn: number) {
+    const isLocal = this.config.get('NODE_ENV') === NodeEnvironment.Local;
+
+    return {
       httpOnly: true,
-      expires: new Date(Date.now() + this.REFRESH_TOKEN_EXPIRY),
+      expires: new Date(Date.now() + expiresIn),
       signed: true,
-      secure: true, // ! If the server and web client are on the same domain you can remove this
-      sameSite: 'none', // ! If the server and web client are on the same domain you can remove this
-    });
+      secure: !isLocal,
+      sameSite: 'lax' as const,
+    };
   }
 
-  getRefreshTokenFromRequest(req: Request): string {
-    let refreshToken = req.signedCookies[this.REFRESH_TOKEN_COOKIE_NAME];
+  setAuthCookies(res: Response, accessToken: string, refreshToken: string): void {
+    const accessTokenExpiryMs = parseDuration(this.config.get('REFRESH_TOKEN_EXPIRY_TIME'), 'ms');
+    const refreshTokenExpiresAt = parseDuration(this.config.get('REFRESH_TOKEN_EXPIRY_TIME'), 'ms');
 
-    if (!refreshToken && req.body[this.REFRESH_TOKEN_COOKIE_NAME]) {
-      refreshToken = req.body[this.REFRESH_TOKEN_COOKIE_NAME];
-    }
-
-    if (!refreshToken) {
-      throw new UnauthorizedException('Refresh token not found in request');
-    }
-
-    return refreshToken;
+    res.cookie(this.ACCESS_TOKEN_COOKIE_NAME, accessToken, this.getCookieOptions(accessTokenExpiryMs));
+    res.cookie(this.REFRESH_TOKEN_COOKIE_NAME, refreshToken, this.getCookieOptions(refreshTokenExpiresAt));
   }
 
-  clearRefreshTokenCookie(res: Response): void {
+  getAccessTokenFromRequest(req: Request): string | undefined {
+    return req.signedCookies[this.ACCESS_TOKEN_COOKIE_NAME];
+  }
+
+  getRefreshTokenFromRequest(req: Request): string | undefined {
+    return req.signedCookies[this.REFRESH_TOKEN_COOKIE_NAME];
+  }
+
+  clearAuthCookies(res: Response): void {
+    res.clearCookie(this.ACCESS_TOKEN_COOKIE_NAME);
     res.clearCookie(this.REFRESH_TOKEN_COOKIE_NAME);
   }
 }

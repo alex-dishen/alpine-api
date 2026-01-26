@@ -6,11 +6,11 @@ import { JwtTokenDecode } from './types/types';
 import { AuthRepository } from './auth.repository';
 import { UserRepository } from '../user/user.repository';
 import { OAuthStrategyFactory } from './strategies/oauth-strategy.factory';
-import { IAuthService, OAuthSignInInput, SignInInput, SignUpInput, TokensOutput } from './interfaces/auth.service.interface';
+import { OAuthSignInInput, SignInInput, SignUpInput, TokensOutput } from './types/auth.service.types';
 import { ForbiddenException, Injectable, InternalServerErrorException, UnauthorizedException } from '@nestjs/common';
 
 @Injectable()
-export class AuthService implements IAuthService {
+export class AuthService {
   constructor(
     private jwtService: JwtService,
     private tokenService: TokenService,
