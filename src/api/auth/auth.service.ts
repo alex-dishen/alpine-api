@@ -7,7 +7,13 @@ import { AuthRepository } from './auth.repository';
 import { UserRepository } from '../user/user.repository';
 import { OAuthStrategyFactory } from './strategies/oauth-strategy.factory';
 import { OAuthSignInInput, SignInInput, SignUpInput, TokensOutput } from './types/auth.service.types';
-import { ForbiddenException, Injectable, InternalServerErrorException, UnauthorizedException } from '@nestjs/common';
+import {
+  ConflictException,
+  ForbiddenException,
+  Injectable,
+  InternalServerErrorException,
+  UnauthorizedException,
+} from '@nestjs/common';
 
 @Injectable()
 export class AuthService {
@@ -50,6 +56,12 @@ export class AuthService {
   }
 
   async signUp(data: SignUpInput): Promise<TokensOutput> {
+    const existingUser = await this.userRepository.getUserBy({ email: data.email });
+
+    if (existingUser) {
+      throw new ConflictException('Email already exists');
+    }
+
     const hashedPassword = await hash(data.password);
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { confirmation_password, ...updatedData } = { ...data, password: hashedPassword };
