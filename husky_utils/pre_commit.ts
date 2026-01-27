@@ -114,11 +114,34 @@ const checkCircularDependencies = async (): Promise<void> => {
   });
 };
 
+const runTests = async (): Promise<void> => {
+  return new Promise((resolve, reject) => {
+    const spinnerInterval = loader('Running tests');
+    exec('npm run test', (error, stdout, stderr) => {
+      clearInterval(spinnerInterval);
+      emptyLine();
+
+      if (error) {
+        console.log(stdout);
+
+        if (stderr) {
+          console.log(stderr);
+        }
+        reject(new Error('Tests failed ❌\n'));
+      } else {
+        logSuccess('All tests passed ✅\n');
+        resolve();
+      }
+    });
+  });
+};
+
 const runPreCommitScripts = async (): Promise<void> => {
   try {
     await validateTypes();
     await validateCodeStyle();
     await checkCircularDependencies();
+    await runTests();
   } catch (error) {
     if (error instanceof Error) {
       logError(error.message);
