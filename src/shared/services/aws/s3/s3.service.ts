@@ -3,7 +3,7 @@ import { S3Client, PutObjectCommand, GetObjectCommand, HeadObjectCommand, Delete
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { AppConfigService } from 'src/shared/services/config-service/config.service';
 import { GenerateDownloadUrlArgs, GenerateUploadUrlArgs, GetObjectInfoOutput } from './s3.service.types';
-import { getFileExtension, sanitizeFilename } from './s3.helpers';
+import { getFileExtension, sanitizeFilename } from './helpers/s3.helpers';
 
 @Injectable()
 export class S3Service {

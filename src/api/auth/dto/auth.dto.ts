@@ -1,6 +1,6 @@
 import { OmitType } from '@nestjs/swagger';
 import { IsEmail, IsJWT, IsString, IsStrongPassword } from 'class-validator';
-import { Match } from 'src/shared/decorators/match.decorator';
+import { Match } from 'src/shared/decorators/match/match.decorator';
 
 export class SingInDto {
   @IsEmail()

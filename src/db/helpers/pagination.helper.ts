@@ -1,4 +1,4 @@
-import { Base64 } from 'src/shared/utils/base64';
+import { Base64 } from 'src/shared/utils/base64/base64';
 import { InternalServerErrorException } from '@nestjs/common';
 import type { ReferenceExpression, SelectQueryBuilder } from 'kysely';
 import type {

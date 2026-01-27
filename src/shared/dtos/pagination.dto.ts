@@ -1,6 +1,6 @@
 import { IsNumber } from 'class-validator';
 import { IsOptional } from 'class-validator';
-import IsNullOrNumberDecorator from '../decorators/is-number-or-null.decorator';
+import IsNullOrNumberDecorator from '../decorators/is-number-or-null/is-number-or-null.decorator';
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import { OrderByDirection } from 'kysely';

@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { Response, Request } from 'express';
-import { parseDuration } from 'src/shared/utils/parse-duration';
+import { parseDuration } from 'src/shared/utils/parse-duration/parse-duration';
 import { AppConfigService } from 'src/shared/services/config-service/config.service';
 import { NodeEnvironment } from 'src/shared/services/config-service/env-variables/env-schema';
 
