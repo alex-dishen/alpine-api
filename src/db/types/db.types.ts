@@ -1,36 +1,32 @@
+/* eslint-disable */
+// @ts-nocheck
 // Auto-generated CRUD types for Kysely
-// Generated at 2025-09-13T05:59:31.541Z
+// Generated at 2026-01-30T09:54:41.790Z
 
 import type { ColumnType, Generated, Selectable, Insertable, Updateable } from 'kysely';
 
-export enum MessageSenderRole {
-  MODEL = 'model',
-  USER = 'user',
+export enum JobStageCategory {
+  INITIAL = 'initial',
+  INTERVIEW = 'interview',
+  POSITIVE = 'positive',
+  NEGATIVE = 'negative',
 }
 
-export enum ConnectionType {
-  ATTACHED = 'attached',
-  DETACHED = 'detached',
-  TEMPORARY = 'temporary',
+export enum JobColumnType {
+  TEXT = 'text',
+  NUMBER = 'number',
+  DATE = 'date',
+  URL = 'url',
+  CHECKBOX = 'checkbox',
+  SELECT = 'select',
+  MULTI_SELECT = 'multi_select',
 }
 
-export enum ContextType {
-  FULL_MESSAGE = 'full_message',
-  TEXT_SELECTION = 'text_selection',
-}
-
-export enum FileStatus {
-  PENDING_UPLOAD = 'pending_upload',
-  UPLOADED = 'uploaded',
-}
-
-export enum FileCategory {
-  IMAGE = 'image',
-  DOCUMENT = 'document',
-}
-
-export enum FileBindingType {
-  MESSAGE = 'message',
+export enum InterviewOutcome {
+  PENDING = 'pending',
+  PASSED = 'passed',
+  FAILED = 'failed',
+  CANCELED = 'canceled',
 }
 
 export enum UserProvider {
@@ -39,122 +35,102 @@ export enum UserProvider {
   APPLE = 'apple',
 }
 
-type ChatTable = {
+export type JobStageTable = {
   id: Generated<string>;
-  parent_chat_id: string | null;
-  user_id: string;
-  root_chat_id: string | null;
-  folder_id: string | null;
-  name: string;
-  depth: Generated<number>;
-  created_at: ColumnType<Date, Date | string | undefined, Date | string>;
-  updated_at: ColumnType<Date, Date | string | undefined, Date | string>;
-  is_deleted: Generated<boolean>;
-  deleted_at: ColumnType<Date, Date | string | undefined, Date | string>;
-  position_y: Generated<number>;
-  position_x: Generated<number>;
-  path: string[];
-};
-export type ChatGetOutput = Selectable<ChatTable>;
-export type ChatCreateInput = Insertable<ChatTable>;
-export type ChatUpdateInput = Updateable<ChatTable>;
-
-type MessageTable = {
-  id: Generated<string>;
-  parent_message_id: string | null;
-  chat_id: string;
-  user_id: string | null;
-  content: string;
-  llm_model: string | null;
-  role: MessageSenderRole;
-  created_at: ColumnType<Date, Date | string | undefined, Date | string>;
-};
-export type MessageGetOutput = Selectable<MessageTable>;
-export type MessageCreateInput = Insertable<MessageTable>;
-export type MessageUpdateInput = Updateable<MessageTable>;
-
-type MessageReplyTable = {
-  id: Generated<string>;
-  message_id: string;
-  message_id_replied_to: string;
-  reply_content: string;
-};
-export type MessageReplyGetOutput = Selectable<MessageReplyTable>;
-export type MessageReplyCreateInput = Insertable<MessageReplyTable>;
-export type MessageReplyUpdateInput = Updateable<MessageReplyTable>;
-
-type ChatMetadataTable = {
-  id: Generated<string>;
-  child_chat_id: string;
-  parent_chat_id: string;
-  parent_message_id: string;
-  child_message_id: string | null;
-  selected_text: string | null;
-  start_position: number | null;
-  end_position: number | null;
-  created_at: ColumnType<Date, Date | string | undefined, Date | string>;
-  context_type: ContextType;
-  connection_type: ConnectionType;
-  connection_color: string;
-};
-export type ChatMetadataGetOutput = Selectable<ChatMetadataTable>;
-export type ChatMetadataCreateInput = Insertable<ChatMetadataTable>;
-export type ChatMetadataUpdateInput = Updateable<ChatMetadataTable>;
-
-type FileTable = {
-  id: Generated<string>;
-  bucket: string;
-  object_key: string;
-  original_filename: string;
-  extension: string;
-  mime_type: string;
-  category: FileCategory;
-  size_bytes: bigint;
-  status: Generated<FileStatus>;
-  uploader_id: string;
-  created_at: ColumnType<Date, Date | string | undefined, Date | string>;
-};
-export type FileGetOutput = Selectable<FileTable>;
-export type FileCreateInput = Insertable<FileTable>;
-export type FileUpdateInput = Updateable<FileTable>;
-
-type FileBindingTable = {
-  id: Generated<string>;
-  file_id: string;
-  target_type: FileBindingType;
-  target_id: string;
-  created_at: ColumnType<Date, Date | string | undefined, Date | string>;
-};
-export type FileBindingGetOutput = Selectable<FileBindingTable>;
-export type FileBindingCreateInput = Insertable<FileBindingTable>;
-export type FileBindingUpdateInput = Updateable<FileBindingTable>;
-
-type FolderTable = {
-  id: Generated<string>;
-  root_folder_id: string | null;
-  parent_folder_id: string | null;
   user_id: string;
   name: string;
-  depth: Generated<number>;
+  color: Generated<string>;
+  category: Generated<JobStageCategory>;
+  position: Generated<number>;
   created_at: ColumnType<Date, Date | string | undefined, Date | string>;
   updated_at: ColumnType<Date, Date | string | undefined, Date | string>;
-  is_deleted: Generated<boolean>;
-  deleted_at: ColumnType<Date, Date | string | undefined, Date | string>;
-  path: string[];
 };
-export type FolderGetOutput = Selectable<FolderTable>;
-export type FolderCreateInput = Insertable<FolderTable>;
-export type FolderUpdateInput = Updateable<FolderTable>;
+export type JobStageGetOutput = Selectable<JobStageTable>;
+export type JobStageCreateInput = Insertable<JobStageTable>;
+export type JobStageUpdateInput = Updateable<JobStageTable>;
 
-type UserTable = {
+export type JobApplicationTable = {
+  id: Generated<string>;
+  user_id: string;
+  stage_id: string;
+  company_name: string;
+  job_title: string;
+  salary_min: number | null;
+  salary_max: number | null;
+  job_description: string | null;
+  notes: string | null;
+  applied_at: ColumnType<Date, Date | string | undefined, Date | string>;
+  is_archived: Generated<boolean>;
+  archived_at: ColumnType<Date, Date | string | undefined, Date | string>;
+  created_at: ColumnType<Date, Date | string | undefined, Date | string>;
+  updated_at: ColumnType<Date, Date | string | undefined, Date | string>;
+};
+export type JobApplicationGetOutput = Selectable<JobApplicationTable>;
+export type JobApplicationCreateInput = Insertable<JobApplicationTable>;
+export type JobApplicationUpdateInput = Updateable<JobApplicationTable>;
+
+export type JobColumnDefinitionTable = {
+  id: Generated<string>;
+  user_id: string;
+  name: string;
+  column_type: JobColumnType;
+  created_at: ColumnType<Date, Date | string | undefined, Date | string>;
+  updated_at: ColumnType<Date, Date | string | undefined, Date | string>;
+};
+export type JobColumnDefinitionGetOutput = Selectable<JobColumnDefinitionTable>;
+export type JobColumnDefinitionCreateInput = Insertable<JobColumnDefinitionTable>;
+export type JobColumnDefinitionUpdateInput = Updateable<JobColumnDefinitionTable>;
+
+export type JobColumnOptionTable = {
+  id: Generated<string>;
+  column_id: string;
+  label: string;
+  color: Generated<string>;
+  position: Generated<number>;
+  created_at: ColumnType<Date, Date | string | undefined, Date | string>;
+  updated_at: ColumnType<Date, Date | string | undefined, Date | string>;
+};
+export type JobColumnOptionGetOutput = Selectable<JobColumnOptionTable>;
+export type JobColumnOptionCreateInput = Insertable<JobColumnOptionTable>;
+export type JobColumnOptionUpdateInput = Updateable<JobColumnOptionTable>;
+
+export type JobColumnValueTable = {
+  id: Generated<string>;
+  job_id: string;
+  column_id: string;
+  option_id: string | null;
+  value: string | null;
+  created_at: ColumnType<Date, Date | string | undefined, Date | string>;
+  updated_at: ColumnType<Date, Date | string | undefined, Date | string>;
+};
+export type JobColumnValueGetOutput = Selectable<JobColumnValueTable>;
+export type JobColumnValueCreateInput = Insertable<JobColumnValueTable>;
+export type JobColumnValueUpdateInput = Updateable<JobColumnValueTable>;
+
+export type JobInterviewTable = {
+  id: Generated<string>;
+  job_id: string;
+  type: string;
+  scheduled_at: ColumnType<Date, Date | string | undefined, Date | string>;
+  duration_mins: Generated<number>;
+  location: string | null;
+  meeting_url: string | null;
+  notes: string | null;
+  outcome: Generated<InterviewOutcome>;
+  created_at: ColumnType<Date, Date | string | undefined, Date | string>;
+  updated_at: ColumnType<Date, Date | string | undefined, Date | string>;
+};
+export type JobInterviewGetOutput = Selectable<JobInterviewTable>;
+export type JobInterviewCreateInput = Insertable<JobInterviewTable>;
+export type JobInterviewUpdateInput = Updateable<JobInterviewTable>;
+
+export type UserTable = {
   id: Generated<string>;
   email: string;
   first_name: string;
   last_name: string;
-  avatar: string | null;
+  avatar_id: string | null;
   password: string | null;
-  provider: UserProvider | null;
-  provider_id: string | null;
   created_at: ColumnType<Date, Date | string | undefined, Date | string>;
   updated_at: ColumnType<Date, Date | string | undefined, Date | string>;
 };
@@ -162,13 +138,38 @@ export type UserGetOutput = Selectable<UserTable>;
 export type UserCreateInput = Insertable<UserTable>;
 export type UserUpdateInput = Updateable<UserTable>;
 
+export type UserPreferencesTable = {
+  id: Generated<string>;
+  user_id: string;
+  preferences: Generated<Record<string, any>>;
+  created_at: ColumnType<Date, Date | string | undefined, Date | string>;
+  updated_at: ColumnType<Date, Date | string | undefined, Date | string>;
+};
+export type UserPreferencesGetOutput = Selectable<UserPreferencesTable>;
+export type UserPreferencesCreateInput = Insertable<UserPreferencesTable>;
+export type UserPreferencesUpdateInput = Updateable<UserPreferencesTable>;
+
+export type UserAuthProviderTable = {
+  id: Generated<string>;
+  user_id: string;
+  provider: UserProvider;
+  provider_id: string;
+  provider_email: string | null;
+  created_at: ColumnType<Date, Date | string | undefined, Date | string>;
+  updated_at: ColumnType<Date, Date | string | undefined, Date | string>;
+};
+export type UserAuthProviderGetOutput = Selectable<UserAuthProviderTable>;
+export type UserAuthProviderCreateInput = Insertable<UserAuthProviderTable>;
+export type UserAuthProviderUpdateInput = Updateable<UserAuthProviderTable>;
+
 export type DB = {
-  chats: ChatTable;
-  messages: MessageTable;
-  message_replies: MessageReplyTable;
-  chat_metadata: ChatMetadataTable;
-  files: FileTable;
-  file_bindings: FileBindingTable;
-  folders: FolderTable;
+  job_stages: JobStageTable;
+  job_applications: JobApplicationTable;
+  job_column_definitions: JobColumnDefinitionTable;
+  job_column_options: JobColumnOptionTable;
+  job_column_values: JobColumnValueTable;
+  job_interviews: JobInterviewTable;
   users: UserTable;
+  user_preferences: UserPreferencesTable;
+  user_auth_providers: UserAuthProviderTable;
 };

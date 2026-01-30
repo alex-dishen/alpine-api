@@ -1,12 +1,12 @@
 import { hash } from 'argon2';
 import { Injectable } from '@nestjs/common';
 import { MessageDto } from 'src/shared/dtos/message.dto';
-import { UserRepository } from 'src/api/user/user.repository';
-import { CreateUserDto, UpdateUserDto, UserDto } from 'src/api/user/dto/user.dto';
+import { UsersRepository } from 'src/api/user/users/users.repository';
+import { CreateUserDto, UpdateUserDto, UserDto } from 'src/api/user/users/dto/users.dto';
 
 @Injectable()
-export class UserService {
-  constructor(private userRepository: UserRepository) {}
+export class UsersService {
+  constructor(private userRepository: UsersRepository) {}
 
   async createUser(data: CreateUserDto): Promise<UserDto> {
     const hashedPassword = await hash(data.password);
@@ -19,6 +19,7 @@ export class UserService {
   async getUser(userId: string): Promise<UserDto | undefined> {
     return this.userRepository.getUserBy({ id: userId });
   }
+
   async updateUser(userId: string, data: Partial<UpdateUserDto>): Promise<MessageDto> {
     let dataToUpdate = data;
 

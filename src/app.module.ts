@@ -7,6 +7,7 @@ import { DatabaseModule } from 'src/db/db.module';
 import { RedisModule } from 'src/redis/redis.module';
 import { AuthModule } from 'src/api/auth/auth.module';
 import { UserModule } from 'src/api/user/user.module';
+import { JobModule } from 'src/api/job/job.module';
 import { AppConfigModule } from 'src/shared/services/config-service/config.module';
 import { validateEnv } from 'src/shared/services/config-service/env-variables/validate-env';
 import { AwsModule } from './shared/services/aws/aws.module';
@@ -28,6 +29,7 @@ import { AwsModule } from './shared/services/aws/aws.module';
     RedisModule,
     AuthModule,
     UserModule,
+    JobModule,
     LLMModule,
   ],
   controllers: [],

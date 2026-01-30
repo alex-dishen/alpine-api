@@ -5,7 +5,7 @@ import tseslint from 'typescript-eslint';
 
 export default tseslint.config(
   {
-    ignores: ['eslint.config.mjs', 'node_modules', 'dist', 'build', 'pre-checks'],
+    ignores: ['eslint.config.mjs', 'node_modules', 'dist', 'build', 'pre-checks', 'src/db/types/db.types.ts'],
   },
   eslint.configs.recommended,
   ...tseslint.configs.recommendedTypeChecked,

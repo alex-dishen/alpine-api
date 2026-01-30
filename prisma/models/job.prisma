@@ -1,0 +1,151 @@
+enum JobStageCategory {
+    INITIAL   @map("initial")
+    INTERVIEW @map("interview")
+    POSITIVE  @map("positive")
+    NEGATIVE  @map("negative")
+}
+
+enum JobColumnType {
+    TEXT         @map("text")
+    NUMBER       @map("number")
+    DATE         @map("date")
+    URL          @map("url")
+    CHECKBOX     @map("checkbox")
+    SELECT       @map("select")
+    MULTI_SELECT @map("multi_select")
+}
+
+enum InterviewOutcome {
+    PENDING  @map("pending")
+    PASSED   @map("passed")
+    FAILED   @map("failed")
+    CANCELED @map("canceled")
+}
+
+/// Job tracking stages (e.g., "Applied", "Interview", "Offered")
+model JobStage {
+    id      String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+    user_id String @db.Uuid
+
+    name     String
+    color    String           @default("#6B7280")
+    category JobStageCategory @default(INITIAL) // Groups stages in kanban view
+    position Int              @default(0)
+
+    created_at DateTime  @default(now())
+    updated_at DateTime? @updatedAt
+
+    user         User             @relation(fields: [user_id], references: [id])
+    applications JobApplication[]
+
+    @@unique([user_id, name])
+    @@map("job_stages")
+}
+
+/// Job application records
+model JobApplication {
+    id       String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+    user_id  String @db.Uuid
+    stage_id String @db.Uuid
+
+    company_name    String
+    job_title       String
+    salary_min      Int?
+    salary_max      Int?
+    job_description String? // Original job posting from job board/recruiter
+    notes           String?
+    applied_at      DateTime  @default(now())
+    is_archived     Boolean   @default(false) // Soft delete flag
+    archived_at     DateTime? @updatedAt
+    created_at      DateTime  @default(now())
+    updated_at      DateTime? @updatedAt
+
+    user         User             @relation(fields: [user_id], references: [id])
+    stage        JobStage         @relation(fields: [stage_id], references: [id])
+    columnValues JobColumnValue[]
+    interviews   JobInterview[]
+
+    @@index([user_id, is_archived])
+    @@index([user_id, stage_id])
+    @@index([user_id, company_name])
+    @@map("job_applications")
+}
+
+/// Custom column definitions for job applications
+model JobColumnDefinition {
+    id      String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+    user_id String @db.Uuid
+
+    name        String // Display name in table header
+    column_type JobColumnType
+    created_at  DateTime      @default(now())
+    updated_at  DateTime?     @updatedAt
+
+    user    User              @relation(fields: [user_id], references: [id])
+    options JobColumnOption[]
+    values  JobColumnValue[]
+
+    @@unique([user_id, name])
+    @@map("job_column_definitions")
+}
+
+/// Options for SELECT and MULTI_SELECT column types
+model JobColumnOption {
+    id        String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+    column_id String @db.Uuid
+
+    label      String
+    color      String    @default("#6B7280")
+    position   Int       @default(0) // For ordering in dropdown
+    created_at DateTime  @default(now())
+    updated_at DateTime? @updatedAt
+
+    column JobColumnDefinition @relation(fields: [column_id], references: [id])
+    values JobColumnValue[]
+
+    @@unique([column_id, label])
+    @@map("job_column_options")
+}
+
+/// Stores values for custom columns on job applications
+model JobColumnValue {
+    id        String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+    job_id    String  @db.Uuid
+    column_id String  @db.Uuid
+    option_id String? @db.Uuid // For SELECT/MULTI_SELECT - FK to option
+
+    value      String? // For TEXT, NUMBER, DATE, URL, CHECKBOX
+    created_at DateTime  @default(now())
+    updated_at DateTime? @updatedAt
+
+    job    JobApplication      @relation(fields: [job_id], references: [id])
+    column JobColumnDefinition @relation(fields: [column_id], references: [id])
+    option JobColumnOption?    @relation(fields: [option_id], references: [id])
+
+    @@unique([job_id, column_id, option_id]) // Allows multiple rows for MULTI_SELECT
+    @@index([job_id])
+    @@index([column_id, option_id])
+    @@map("job_column_values")
+}
+
+/// Interview records for job applications
+model JobInterview {
+    id     String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+    job_id String @db.Uuid
+
+    type          String // e.g., "Phone Screen", "Technical"
+    scheduled_at  DateTime
+    duration_mins Int              @default(60)
+    location      String? // Physical address or video call URL
+    meeting_url   String?
+    notes         String?
+    outcome       InterviewOutcome @default(PENDING)
+    created_at    DateTime         @default(now())
+    updated_at    DateTime?        @updatedAt
+
+    job JobApplication @relation(fields: [job_id], references: [id])
+
+    @@index([job_id])
+    @@index([scheduled_at])
+    @@map("job_interviews")
+}

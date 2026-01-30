@@ -15,10 +15,10 @@ export class UserDto {
   password?: string | null;
 
   created_at: Date;
-  updated_at: Date;
   last_name: string;
   first_name: string;
-  avatar: string | null;
+  updated_at: Date | null;
+  avatar_id: string | null;
 }
 
 export class CreateUserDto {
@@ -40,7 +40,7 @@ export class CreateUserDto {
 
   @IsOptional()
   @IsString()
-  avatar?: string;
+  avatar_id?: string;
 }
 
 export class UpdateUserDto {
@@ -65,5 +65,5 @@ export class UpdateUserDto {
 
   @IsOptional()
   @IsString()
-  avatar?: string;
+  avatar_id?: string;
 }

@@ -15,8 +15,26 @@ model User {
     updated_at DateTime? @updatedAt
 
     userAuthProviders UserAuthProvider[]
+    preferences       UserPreferences?
+    jobStages         JobStage[]
+    jobApplications   JobApplication[]
+    jobColumns        JobColumnDefinition[]
 
     @@map("users")
+}
+
+/// User preferences for application settings
+model UserPreferences {
+    id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+    user_id     String    @unique @db.Uuid
+    preferences Json      @default("{}") @db.JsonB
+    created_at  DateTime  @default(now())
+    updated_at  DateTime? @updatedAt
+
+    user User @relation(fields: [user_id], references: [id])
+
+    @@index([user_id])
+    @@map("user_preferences")
 }
 
 model UserAuthProvider {

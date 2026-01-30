@@ -1,4 +1,4 @@
-import { IsNumber } from 'class-validator';
+import { IsNumber, IsString } from 'class-validator';
 import { IsOptional } from 'class-validator';
 import IsNullOrNumberDecorator from '../decorators/is-number-or-null/is-number-or-null.decorator';
 import { ApiProperty } from '@nestjs/swagger';
@@ -43,7 +43,16 @@ export class OffsetPaginatedResult<T> {
 
 export type OffsetPaginateOptions = { skip?: number; take?: number };
 
-class CursorPaginationDto {
+export class CursorPaginationRequestDto {
+  @IsNumber()
+  take: number;
+
+  @IsString()
+  @IsOptional()
+  cursor: string | null;
+}
+
+export class CursorPaginationDto {
   @ApiProperty({ description: 'Indicates if there is a next page' })
   hasNextPage: boolean;
 
@@ -66,8 +75,13 @@ export type CursorPaginationOptionsOrderBy<T = string, I = object> = {
   nulls?: 'first' | 'last';
 };
 
+export type CursorPaginationInput = {
+  take: number;
+  cursor: string | null;
+};
+
 export type CursorPaginationOptions<T, I> = {
-  take?: number;
-  cursor?: string | null;
+  take: number;
+  cursor: string | null;
   orderBy: CursorPaginationOptionsOrderBy<T, I>[];
 };

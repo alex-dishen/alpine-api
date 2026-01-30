@@ -4,7 +4,8 @@ import { JwtService } from '@nestjs/jwt';
 import { TokenService } from './token.service';
 import { JwtTokenDecode } from './types/types';
 import { AuthRepository } from './auth.repository';
-import { UserRepository } from '../user/user.repository';
+import { UsersRepository } from '../user/users/users.repository';
+import { StagesService } from '../job/stages/stages.service';
 import { OAuthStrategyFactory } from './strategies/oauth-strategy.factory';
 import { OAuthSignInInput, SignInInput, SignUpInput, TokensOutput } from './types/auth.service.types';
 import {
@@ -21,7 +22,8 @@ export class AuthService {
     private jwtService: JwtService,
     private tokenService: TokenService,
     private authRepository: AuthRepository,
-    private userRepository: UserRepository,
+    private userRepository: UsersRepository,
+    private stagesService: StagesService,
     private oAuthStrategyFactory: OAuthStrategyFactory,
   ) {}
 
@@ -68,6 +70,9 @@ export class AuthService {
 
     const user = await this.userRepository.createUser(updatedData);
 
+    // Seed default job stages for new user
+    await this.stagesService.seedDefaultStages(user.id);
+
     return this.createTokenAndHandleUserSession(user.id);
   }
 
@@ -78,15 +83,22 @@ export class AuthService {
     const userData = await strategy.authenticate(code);
 
     let dbUser = await this.userRepository.getUserBy({ email: userData.email });
+    let isNewUser = false;
 
     if (!dbUser) {
+      // Note: This creates user without provider info in users table
+      // Provider info should be stored separately in user_auth_providers
       dbUser = await this.userRepository.createUser({
         email: userData.email,
-        provider_id: userData.providerId,
         last_name: userData.lastName,
         first_name: userData.firstName,
-        provider: userData.provider,
       });
+      isNewUser = true;
+    }
+
+    // Seed default job stages for new OAuth users
+    if (isNewUser) {
+      await this.stagesService.seedDefaultStages(dbUser.id);
     }
 
     return this.createTokenAndHandleUserSession(dbUser.id);

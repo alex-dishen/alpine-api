@@ -48,7 +48,7 @@ const createEnums = (prismaEnums: DMMF.DatamodelEnum[]): string => {
 };
 
 const createTableType = (modelName: string, modelFields: DMMF.Field[], prismaEnums: DMMF.DatamodelEnum[]): string => {
-  let getTypeContent = `type ${modelName}Table = {\n`;
+  let getTypeContent = `export type ${modelName}Table = {\n`;
 
   for (const field of modelFields) {
     // Exclude relations
@@ -91,7 +91,9 @@ const onGenerate = async (options: GeneratorOptions) => {
     throw new Error('Output file is not specified in the generator options.');
   }
 
-  let fileContent = `// Auto-generated CRUD types for Kysely
+  let fileContent = `/* eslint-disable */
+// @ts-nocheck
+// Auto-generated CRUD types for Kysely
 // Generated at ${new Date().toISOString()}
 
 import type { ColumnType, Generated, Selectable, Insertable, Updateable } from 'kysely';
