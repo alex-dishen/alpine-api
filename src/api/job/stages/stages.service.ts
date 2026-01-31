@@ -82,7 +82,6 @@ export class StagesService {
         color: stage.color,
         category: stage.category as never,
         position,
-        is_default: true,
       };
     });
 

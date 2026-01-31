@@ -1,5 +1,16 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsBoolean, IsDateString, IsEnum, IsInt, IsOptional, IsString, IsUUID, MaxLength, Min } from 'class-validator';
+import {
+  IsBoolean,
+  IsDateString,
+  IsEnum,
+  IsInt,
+  IsOptional,
+  IsString,
+  IsUUID,
+  MaxLength,
+  Min,
+  ValidateNested,
+} from 'class-validator';
 import { Transform, Type } from 'class-transformer';
 import { JobStageCategory } from 'src/db/types/db.types';
 import { JobStageResponseDto } from 'src/api/job/stages/dto/stage.dto';
@@ -192,15 +203,18 @@ export class JobSortDto {
 export class JobFiltersDto {
   @ApiPropertyOptional({ type: JobFiltersBaseDto })
   @IsOptional()
+  @ValidateNested()
   @Type(() => JobFiltersBaseDto)
   filters?: JobFiltersBaseDto;
 
   @ApiPropertyOptional({ type: JobSortDto })
   @IsOptional()
+  @ValidateNested()
   @Type(() => JobSortDto)
   sort?: JobSortDto;
 
   @ApiProperty({ type: CursorPaginationRequestDto })
+  @ValidateNested()
   @Type(() => CursorPaginationRequestDto)
   pagination: CursorPaginationRequestDto;
 }

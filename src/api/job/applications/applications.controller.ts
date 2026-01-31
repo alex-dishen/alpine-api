@@ -28,9 +28,9 @@ export class ApplicationsController {
   @Post('list')
   async getJobs(
     @GetUser('sub') userId: string,
-    @Body() filters: JobFiltersDto,
+    @Body() dto: JobFiltersDto,
   ): Promise<CursorPaginatedResult<JobApplicationWithStageResponseDto>> {
-    return this.applicationsService.getJobs(userId, filters);
+    return this.applicationsService.getJobs(userId, dto);
   }
 
   @ApiOperation({ summary: 'Get total count of job applications with filters' })

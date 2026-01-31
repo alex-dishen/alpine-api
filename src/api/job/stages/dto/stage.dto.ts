@@ -1,5 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsArray, IsBoolean, IsEnum, IsHexColor, IsInt, IsOptional, IsString, IsUUID, MaxLength, Min } from 'class-validator';
+import { IsArray, IsEnum, IsHexColor, IsInt, IsOptional, IsString, IsUUID, MaxLength, Min } from 'class-validator';
 import { JobStageCategory } from 'src/db/types/db.types';
 
 // Response DTOs
@@ -71,10 +71,6 @@ export class UpdateStageDto {
   @IsInt()
   @Min(0)
   position?: number;
-
-  @IsOptional()
-  @IsBoolean()
-  is_default?: boolean;
 }
 
 export class ReorderStagesDto {
