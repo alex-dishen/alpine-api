@@ -45,16 +45,87 @@ api/
     ├── dto/                    # Data Transfer Objects
     │   ├── create-feature.dto.ts
     │   └── update-feature.dto.ts
-    ├── interfaces/             # TypeScript interfaces
+    ├── mappers/                # Flat-to-nested transformations
+    │   └── feature.mapper.ts
     ├── types/                  # Type definitions
+    │   └── feature.repository.types.ts  # Flat types for joins
     └── strategies/             # Strategy pattern implementations (if needed)
 ```
+
+### Complex Module Structure
+
+For modules with dynamic filtering/sorting, add `strategies/` and `registry/` folders:
+
+```
+api/
+└── feature/
+    ├── strategies/             # Filter & sort handlers
+    │   ├── feature-filter.strategy.ts
+    │   ├── feature-sort.strategy.ts
+    │   └── resolvers/
+    │       └── feature-query-builder.helper.ts
+    └── registry/               # Enums for filters/sorts
+        ├── feature-filter.enum.ts
+        └── feature-sort.enum.ts
+```
+
+### Transaction Management
+
+Use `@Transaction()` decorator on service methods for multi-repository operations:
+
+```typescript
+import { Transaction } from 'src/db/transactions/transaction.decorator';
+
+@Injectable()
+export class FeatureService {
+  @Transaction()
+  async createWithRelated(userId: string, data: CreateDto): Promise<void> {
+    await this.repository.create({ ... });
+    await this.relatedRepository.create({ ... });
+    // Both in same transaction - auto-rollback on error
+  }
+}
+```
+
+**How it works:**
+- Decorator uses AsyncLocalStorage to track transaction context
+- Repositories automatically use active transaction via `DatabaseService.db`
+- Propagation: reuses existing transaction if called within one
+- Error handling: automatic rollback on any thrown exception
 
 ### Layered Architecture
 
 1. **Controller Layer** - Handles HTTP requests, validation, and response formatting
 2. **Service Layer** - Contains business logic and orchestration
-3. **Repository Layer** - Data access abstraction using Kysely
+3. **Repository Layer** - Data access abstraction using Kysely (returns flat data)
+4. **Mapper Layer** - Transforms flat repository rows to nested response DTOs
+
+### Mapper Layer
+
+Mappers transform flat repository rows to nested response DTOs. Located in `mappers/{feature}.mapper.ts`.
+
+**Pattern:**
+- Repository returns flat rows with aliased joined columns (e.g., `relation_id`, `relation_name`)
+- Mapper transforms to nested DTO structure
+- Service calls mapper after repository query
+
+```typescript
+// Service
+const rows = await this.repository.findWithRelation(userId);
+return FeatureMapper.toResponseDtoList(rows);
+
+// Mapper
+static toResponseDto(row: FeatureWithRelationRow): FeatureResponseDto {
+  return {
+    id: row.id,
+    name: row.name,
+    relation: {
+      id: row.relation_id,
+      name: row.relation_name,
+    },
+  };
+}
+```
 
 ### Database Stack
 

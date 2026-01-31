@@ -138,50 +138,12 @@ export class {Feature}Service {
 
 ### Repository
 
-Repositories return flat data structures - no nesting or mapping.
+For repository patterns (CRUD, joins, pagination, batch ops), use the `/kysely-repo` skill.
 
-```typescript
-import { Injectable } from '@nestjs/common';
-import { DatabaseService } from 'src/db/db.service';
-import type { {Feature}GetOutput, {Feature}CreateInput, {Feature}UpdateInput } from 'src/db/types/db.types';
-
-@Injectable()
-export class {Feature}Repository {
-  constructor(private kysely: DatabaseService) {}
-
-  async findByUserId(userId: string): Promise<{Feature}GetOutput[]> {
-    return this.kysely.db
-      .selectFrom('{table_name}')
-      .where('user_id', '=', userId)
-      .selectAll()
-      .execute();
-  }
-
-  async findById(id: string): Promise<{Feature}GetOutput | undefined> {
-    return this.kysely.db
-      .selectFrom('{table_name}')
-      .where('id', '=', id)
-      .selectAll()
-      .executeTakeFirst();
-  }
-
-  async create(data: {Feature}CreateInput): Promise<void> {
-    await this.kysely.db.insertInto('{table_name}').values(data).execute();
-  }
-
-  async update(id: string, data: {Feature}UpdateInput): Promise<void> {
-    await this.kysely.db
-      .updateTable('{table_name}')
-      .set({ ...data, updated_at: new Date() })
-      .where('id', '=', id)
-      .execute();
-  }
-
-  async delete(id: string): Promise<void> {
-    await this.kysely.db.deleteFrom('{table_name}').where('id', '=', id).execute();
-  }
-}
-```
+Key principles:
+- Repositories return flat data - no nested structures
+- Write operations return `void`
+- `findById` takes only `id` - ownership check in service
 
 ### Repository with Joins (returns flat)
 

@@ -284,6 +284,100 @@ async findActive(userId: string): Promise<{Table}GetOutput[]> {
 }
 ```
 
+## Advanced Patterns
+
+### Batch Operations
+
+```typescript
+async create(data: {Table}CreateInput | {Table}CreateInput[]): Promise<void> {
+  if (Array.isArray(data) && data.length === 0) return;
+  await this.kysely.db.insertInto('{table_name}').values(data).execute();
+}
+```
+
+### Upsert Pattern (delete-then-insert)
+
+For replacing values rather than updating:
+
+```typescript
+async upsertValue(jobId: string, columnId: string, value: string | null): Promise<void> {
+  await this.deleteByJobAndColumn(jobId, columnId);
+  if (value === null) return;
+  await this.create({ job_id: jobId, column_id: columnId, value });
+}
+```
+
+### Aggregations with GROUP BY
+
+```typescript
+export type {Feature}WithCountRow = {
+  id: string;
+  name: string;
+  count: number;
+};
+
+async findWithCount(userId: string): Promise<{Feature}WithCountRow[]> {
+  return this.kysely.db
+    .selectFrom('{table_name} as t')
+    .leftJoin('related as r', join => join.onRef('r.parent_id', '=', 't.id').on('r.is_active', '=', true))
+    .where('t.user_id', '=', userId)
+    .groupBy('t.id')
+    .select(['t.id', 't.name'])
+    .select(eb => eb.fn.count<number>('r.id').as('count'))
+    .execute();
+}
+```
+
+### Conditional Joins
+
+Add conditions directly in join clause:
+
+```typescript
+.leftJoin('related as r', join =>
+  join.onRef('r.parent_id', '=', 't.id')
+      .on('r.is_archived', '=', false)
+)
+```
+
+### Existence Check
+
+```typescript
+async hasRelated(parentId: string): Promise<boolean> {
+  const result = await this.kysely.db
+    .selectFrom('{table_name}')
+    .where('parent_id', '=', parentId)
+    .select(eb => eb.fn.count<number>('id').as('count'))
+    .executeTakeFirst();
+  return Number(result?.count ?? 0) > 0;
+}
+```
+
+## Transactions (@Transaction Decorator)
+
+For multi-repository operations, use `@Transaction()` decorator in the **service layer** (not repository):
+
+```typescript
+import { Injectable } from '@nestjs/common';
+import { Transaction } from 'src/db/transactions/transaction.decorator';
+
+@Injectable()
+export class {Feature}Service {
+  constructor(
+    private repository: {Feature}Repository,
+    private relatedRepository: RelatedRepository,
+  ) {}
+
+  @Transaction()
+  async createWithRelated(userId: string, data: CreateDto): Promise<void> {
+    await this.repository.create({ ... });
+    await this.relatedRepository.create({ ... });
+    // Both operations in same transaction - auto-rollback on error
+  }
+}
+```
+
+The decorator uses AsyncLocalStorage to track transaction context. Repositories automatically use the active transaction via `DatabaseService.db`.
+
 ## Key Principles
 
 1. **Repositories are "dumb"** - no business logic, validation, orchestration, or mapping
@@ -292,3 +386,4 @@ async findActive(userId: string): Promise<{Table}GetOutput[]> {
 4. **Manual cascade deletion** - use `deleteByParentId` methods, no DB cascades
 5. **No nested returns** - joins return flat rows; mapping to nested structures happens in mappers
 6. **Define flat types** - create `types/{feature}.repository.types.ts` for join return types
+7. **Transactions in services** - use `@Transaction()` on service methods, not repositories
