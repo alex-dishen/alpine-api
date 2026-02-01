@@ -8,9 +8,6 @@ export class JobColumnWithOptionsResponseDto {
   @ApiProperty({ format: 'uuid' })
   id: string;
 
-  @ApiProperty({ format: 'uuid' })
-  user_id: string;
-
   @ApiProperty()
   name: string;
 
@@ -19,6 +16,12 @@ export class JobColumnWithOptionsResponseDto {
 
   @ApiProperty({ type: [JobColumnOptionResponseDto] })
   options: JobColumnOptionResponseDto[];
+
+  @ApiProperty({ description: 'Whether this is a core column (not user-created)' })
+  is_core: boolean;
+
+  @ApiProperty({ description: 'The field key for core columns', nullable: true })
+  field_key: string | null;
 }
 
 // Input DTOs

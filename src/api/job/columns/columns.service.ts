@@ -4,6 +4,7 @@ import type { JobColumnOptionGetOutput } from 'src/db/types/db.types';
 import { Injectable, ConflictException, NotFoundException } from '@nestjs/common';
 import { ColumnValuesRepository } from '../column-values/column-values.repository';
 import { ColumnOptionsRepository } from '../column-options/column-options.repository';
+import { StagesRepository } from '../stages/stages.repository';
 import { CreateColumnDto, UpdateColumnDto, JobColumnWithOptionsResponseDto } from './dto/column.dto';
 
 @Injectable()
@@ -12,25 +13,29 @@ export class ColumnsService {
     private columnsRepository: ColumnsRepository,
     private columnOptionsRepository: ColumnOptionsRepository,
     private columnValuesRepository: ColumnValuesRepository,
+    private stagesRepository: StagesRepository,
   ) {}
 
   async getColumns(userId: string): Promise<JobColumnWithOptionsResponseDto[]> {
-    const columns = await this.columnsRepository.findByUserId(userId);
-
-    if (columns.length === 0) return [];
-
-    const columnIds = columns.map(c => c.id);
-    const options = await this.columnOptionsRepository.findByColumnIds(columnIds);
+    const [columns, stages] = await Promise.all([
+      this.columnsRepository.findByUserId(userId),
+      this.stagesRepository.findStagesByUserId(userId),
+    ]);
 
     const optionsByColumnId = new Map<string, JobColumnOptionGetOutput[]>();
 
-    for (const option of options) {
-      const existing = optionsByColumnId.get(option.column_id) ?? [];
-      existing.push(option);
-      optionsByColumnId.set(option.column_id, existing);
+    if (columns.length) {
+      const columnIds = columns.map(c => c.id);
+      const options = await this.columnOptionsRepository.findByColumnIds(columnIds);
+
+      for (const option of options) {
+        const existing = optionsByColumnId.get(option.column_id) ?? [];
+        existing.push(option);
+        optionsByColumnId.set(option.column_id, existing);
+      }
     }
 
-    return ColumnsMapper.toJobColumnWithOptionsResponseDto(columns, optionsByColumnId);
+    return ColumnsMapper.toJobColumnWithOptionsResponseDto(columns, optionsByColumnId, stages);
   }
 
   async createColumn(userId: string, data: CreateColumnDto): Promise<void> {
