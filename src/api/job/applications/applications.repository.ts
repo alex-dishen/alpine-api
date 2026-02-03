@@ -12,7 +12,7 @@ export class ApplicationsRepository {
   constructor(private kysely: DatabaseService) {}
 
   async findWithPagination(input: FindWithPaginationInput): Promise<CursorPaginatedResult<JobApplicationWithStageRow>> {
-    const { sort, userId, filters, pagination } = input;
+    const { sort, userId, filters, columnFilters, pagination } = input;
 
     let query = this.kysely.db
       .selectFrom('job_applications as ja')
@@ -43,7 +43,12 @@ export class ApplicationsRepository {
       ])
       .where('ja.user_id', '=', userId);
 
-    query = query.where(eb => eb.and(JobApplicationQueryBuilder.applyFilters(eb, filters)));
+    query = query.where(eb =>
+      eb.and([
+        ...JobApplicationQueryBuilder.applyFilters(eb, filters),
+        ...JobApplicationQueryBuilder.applyColumnFilters(eb, columnFilters),
+      ]),
+    );
 
     return Pagination.cursor(query, {
       take: pagination.take,

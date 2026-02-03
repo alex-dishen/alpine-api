@@ -26,6 +26,7 @@ export class ApplicationsService {
       userId,
       sort: dto.sort,
       filters: dto.filters,
+      columnFilters: dto.column_filters,
       pagination: dto.pagination,
     });
 

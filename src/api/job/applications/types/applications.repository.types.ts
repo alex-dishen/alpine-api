@@ -1,5 +1,6 @@
 import type { JobStageCategory } from 'src/db/types/db.types';
 import type { JobFiltersBaseDto, JobSortDto } from '../dto/application.dto';
+import type { ColumnFilterDto } from '../dto/column-filter.dto';
 import type { CursorPaginationInput } from 'src/shared/dtos/pagination.dto';
 
 // Flat row type for job application with stage (from join)
@@ -33,4 +34,5 @@ export type FindWithPaginationInput = {
   sort: JobSortDto | undefined;
   pagination: CursorPaginationInput;
   filters: JobFiltersBaseDto | undefined;
+  columnFilters: ColumnFilterDto[] | undefined;
 };

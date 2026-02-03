@@ -21,6 +21,43 @@ export const sortStrategies: Record<JobApplicationSortByEnum, SortStrategy> = {
     { column: 'ja.is_archived', selectColumn: 'is_archived', direction: order },
     { column: 'ja.id', selectColumn: 'id', direction: 'asc' },
   ],
+
+  [JobApplicationSortByEnum.CompanyName]: order => [
+    { column: 'ja.company_name', selectColumn: 'company_name', direction: order },
+    { column: 'ja.id', selectColumn: 'id', direction: 'asc' },
+  ],
+
+  [JobApplicationSortByEnum.JobTitle]: order => [
+    { column: 'ja.job_title', selectColumn: 'job_title', direction: order },
+    { column: 'ja.id', selectColumn: 'id', direction: 'asc' },
+  ],
+
+  [JobApplicationSortByEnum.AppliedAt]: order => [
+    { column: 'ja.applied_at', selectColumn: 'applied_at', direction: order },
+    { column: 'ja.id', selectColumn: 'id', direction: 'asc' },
+  ],
+
+  [JobApplicationSortByEnum.SalaryMin]: order => [
+    { column: 'ja.salary_min', selectColumn: 'salary_min', direction: order },
+    { column: 'ja.id', selectColumn: 'id', direction: 'asc' },
+  ],
+
+  [JobApplicationSortByEnum.SalaryMax]: order => [
+    { column: 'ja.salary_max', selectColumn: 'salary_max', direction: order },
+    { column: 'ja.id', selectColumn: 'id', direction: 'asc' },
+  ],
+
+  [JobApplicationSortByEnum.CreatedAt]: order => [
+    { column: 'ja.created_at', selectColumn: 'created_at', direction: order },
+    { column: 'ja.id', selectColumn: 'id', direction: 'asc' },
+  ],
+
+  // Custom column sorting requires special repository handling (LEFT JOIN job_column_values)
+  // For now, fall back to created_at sort. Full implementation requires repository changes.
+  [JobApplicationSortByEnum.CustomColumn]: order => [
+    { column: 'ja.created_at', selectColumn: 'created_at', direction: order },
+    { column: 'ja.id', selectColumn: 'id', direction: 'asc' },
+  ],
 };
 
 export const defaultSort: CursorPaginationOptionsOrderBy<TableFieldReference, JobApplicationWithStageRow>[] = [

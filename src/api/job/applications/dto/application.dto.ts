@@ -1,5 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
+  IsArray,
   IsBoolean,
   IsDateString,
   IsEnum,
@@ -19,6 +20,7 @@ import { JobInterviewResponseDto } from 'src/api/job/interviews/dto/interview.dt
 import { CursorPaginationRequestDto } from 'src/shared/dtos/pagination.dto';
 import { JobApplicationSortByEnum } from '../registry/job-application-sort.enum';
 import { SortOrderEnum } from 'src/shared/enums/sort-order';
+import { ColumnFilterDto } from './column-filter.dto';
 
 // Response DTOs
 export class JobApplicationResponseDto {
@@ -198,6 +200,10 @@ export class JobSortDto {
   @IsOptional()
   @IsEnum(SortOrderEnum)
   order: SortOrderEnum;
+
+  @IsOptional()
+  @IsUUID()
+  column_id?: string; // Required when sort_by = 'custom_column'
 }
 
 export class JobFiltersDto {
@@ -206,6 +212,13 @@ export class JobFiltersDto {
   @ValidateNested()
   @Type(() => JobFiltersBaseDto)
   filters?: JobFiltersBaseDto;
+
+  @ApiPropertyOptional({ type: [ColumnFilterDto] })
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => ColumnFilterDto)
+  column_filters?: ColumnFilterDto[];
 
   @ApiPropertyOptional({ type: JobSortDto })
   @IsOptional()

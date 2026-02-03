@@ -1,6 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { PreferencesRepository } from 'src/api/user/preferences/preferences.repository';
-import type { UserPreferencesDto, UpdatePreferencesDto } from 'src/api/user/preferences/dto/preferences.dto';
+import type {
+  UserPreferencesDto,
+  UpdatePreferencesDto,
+  PreferencesDataDto,
+} from 'src/api/user/preferences/dto/preferences.dto';
 
 @Injectable()
 export class PreferencesService {
@@ -13,7 +17,8 @@ export class PreferencesService {
       return { preferences: {} };
     }
 
-    return { preferences: result.preferences };
+    // Cast the JSON preferences to our typed structure
+    return { preferences: result.preferences as PreferencesDataDto };
   }
 
   async updatePreferences(userId: string, data: UpdatePreferencesDto): Promise<void> {
