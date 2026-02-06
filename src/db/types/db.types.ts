@@ -1,7 +1,7 @@
 /* eslint-disable */
 // @ts-nocheck
 // Auto-generated CRUD types for Kysely
-// Generated at 2026-01-30T09:54:41.790Z
+// Generated at 2026-02-05T07:02:43.681Z
 
 import type { ColumnType, Generated, Selectable, Insertable, Updateable } from 'kysely';
 
@@ -138,17 +138,6 @@ export type UserGetOutput = Selectable<UserTable>;
 export type UserCreateInput = Insertable<UserTable>;
 export type UserUpdateInput = Updateable<UserTable>;
 
-export type UserPreferencesTable = {
-  id: Generated<string>;
-  user_id: string;
-  preferences: Generated<Record<string, any>>;
-  created_at: ColumnType<Date, Date | string | undefined, Date | string>;
-  updated_at: ColumnType<Date, Date | string | undefined, Date | string>;
-};
-export type UserPreferencesGetOutput = Selectable<UserPreferencesTable>;
-export type UserPreferencesCreateInput = Insertable<UserPreferencesTable>;
-export type UserPreferencesUpdateInput = Updateable<UserPreferencesTable>;
-
 export type UserAuthProviderTable = {
   id: Generated<string>;
   user_id: string;
@@ -170,6 +159,5 @@ export type DB = {
   job_column_values: JobColumnValueTable;
   job_interviews: JobInterviewTable;
   users: UserTable;
-  user_preferences: UserPreferencesTable;
   user_auth_providers: UserAuthProviderTable;
 };

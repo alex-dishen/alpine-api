@@ -1,5 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
+  IsArray,
   IsBoolean,
   IsDateString,
   IsEnum,
@@ -12,13 +13,13 @@ import {
   ValidateNested,
 } from 'class-validator';
 import { Transform, Type } from 'class-transformer';
-import { JobStageCategory } from 'src/db/types/db.types';
 import { JobStageResponseDto } from 'src/api/job/stages/dto/stage.dto';
 import { JobColumnValueWithOptionResponseDto } from 'src/api/job/column-values/dto/column-value.dto';
 import { JobInterviewResponseDto } from 'src/api/job/interviews/dto/interview.dto';
 import { CursorPaginationRequestDto } from 'src/shared/dtos/pagination.dto';
 import { JobApplicationSortByEnum } from '../registry/job-application-sort.enum';
 import { SortOrderEnum } from 'src/shared/enums/sort-order';
+import { ColumnFilterDto } from './column-filter.dto';
 
 // Response DTOs
 export class JobApplicationResponseDto {
@@ -170,26 +171,7 @@ export class UpdateJobDto {
   is_archived?: boolean;
 }
 
-// Filter DTOs
-export class JobFiltersBaseDto {
-  @IsOptional()
-  @IsString()
-  search?: string;
-
-  @IsOptional()
-  @IsUUID()
-  stage_id?: string;
-
-  @IsOptional()
-  @IsEnum(JobStageCategory)
-  category?: JobStageCategory;
-
-  @IsOptional()
-  @Transform(({ value }) => value === 'true' || value === true)
-  @IsBoolean()
-  is_archived?: boolean;
-}
-
+// Sort DTO
 export class JobSortDto {
   @IsOptional()
   @IsEnum(JobApplicationSortByEnum)
@@ -198,14 +180,40 @@ export class JobSortDto {
   @IsOptional()
   @IsEnum(SortOrderEnum)
   order: SortOrderEnum;
+
+  @IsOptional()
+  @IsUUID()
+  column_id?: string; // Required when sort_by = 'custom_column'
 }
 
+// Filters DTO
 export class JobFiltersDto {
-  @ApiPropertyOptional({ type: JobFiltersBaseDto })
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  search?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @Transform(({ value }) => value === 'true' || value === true)
+  @IsBoolean()
+  is_archived?: boolean;
+
+  @ApiPropertyOptional({ type: [ColumnFilterDto] })
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => ColumnFilterDto)
+  column_filters?: ColumnFilterDto[];
+}
+
+// Main request DTO for listing jobs
+export class JobListRequestDto {
+  @ApiPropertyOptional({ type: JobFiltersDto })
   @IsOptional()
   @ValidateNested()
-  @Type(() => JobFiltersBaseDto)
-  filters?: JobFiltersBaseDto;
+  @Type(() => JobFiltersDto)
+  filters?: JobFiltersDto;
 
   @ApiPropertyOptional({ type: JobSortDto })
   @IsOptional()

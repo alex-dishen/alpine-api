@@ -1,5 +1,6 @@
 import type { JobStageCategory } from 'src/db/types/db.types';
-import type { JobFiltersBaseDto, JobSortDto } from '../dto/application.dto';
+import type { JobSortDto } from '../dto/application.dto';
+import type { ColumnFilterDto } from '../dto/column-filter.dto';
 import type { CursorPaginationInput } from 'src/shared/dtos/pagination.dto';
 
 // Flat row type for job application with stage (from join)
@@ -26,11 +27,22 @@ export type JobApplicationWithStageRow = {
   stage_created_at: Date;
   stage_updated_at: Date;
   stage_category: JobStageCategory;
+  // Joined custom column value (only present when sorting by custom column)
+  custom_column_value?: string | null;
 };
 
 export type FindWithPaginationInput = {
   userId: string;
+  search: string | undefined;
   sort: JobSortDto | undefined;
+  isArchived: boolean | undefined;
   pagination: CursorPaginationInput;
-  filters: JobFiltersBaseDto | undefined;
+  filters: ColumnFilterDto[] | undefined;
+};
+
+export type CountByFiltersInput = {
+  userId: string;
+  search: string | undefined;
+  isArchived: boolean | undefined;
+  filters: ColumnFilterDto[] | undefined;
 };

@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Put, Delete, Param, Body, Query, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Param, Body, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags, ApiResponse } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/shared/guards/jwt.guard';
 import { GetUser } from 'src/shared/decorators/get-user.decorator';
@@ -7,11 +7,11 @@ import { ApplicationsService } from './applications.service';
 import {
   CreateJobDto,
   UpdateJobDto,
+  JobListRequestDto,
   JobFiltersDto,
   JobApplicationWithDetailsResponseDto,
-  JobCountResponseDto,
   JobApplicationWithStageResponseDto,
-  JobFiltersBaseDto,
+  JobCountResponseDto,
 } from './dto/application.dto';
 import { ApiCursorPaginatedResponse } from 'src/shared/decorators/api-pagination-response.decorator';
 import { CursorPaginatedResult } from 'src/shared/dtos/pagination.dto';
@@ -28,16 +28,16 @@ export class ApplicationsController {
   @Post('list')
   async getJobs(
     @GetUser('sub') userId: string,
-    @Body() dto: JobFiltersDto,
+    @Body() dto: JobListRequestDto,
   ): Promise<CursorPaginatedResult<JobApplicationWithStageResponseDto>> {
     return this.applicationsService.getJobs(userId, dto);
   }
 
   @ApiOperation({ summary: 'Get total count of job applications with filters' })
   @ApiResponse({ status: 200, type: JobCountResponseDto })
-  @Get('count')
-  async getJobsCount(@GetUser('sub') userId: string, @Query() filters: JobFiltersBaseDto): Promise<JobCountResponseDto> {
-    return this.applicationsService.getJobsCount(userId, filters);
+  @Post('count')
+  async getJobsCount(@GetUser('sub') userId: string, @Body() dto: JobFiltersDto): Promise<JobCountResponseDto> {
+    return this.applicationsService.getJobsCount(userId, dto);
   }
 
   @ApiOperation({ summary: 'Create a new job application' })

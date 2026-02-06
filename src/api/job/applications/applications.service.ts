@@ -7,9 +7,9 @@ import {
   CreateJobDto,
   UpdateJobDto,
   JobFiltersDto,
+  JobListRequestDto,
   JobApplicationWithStageResponseDto,
   JobApplicationWithDetailsResponseDto,
-  JobFiltersBaseDto,
 } from './dto/application.dto';
 import type { CursorPaginatedResult } from 'src/shared/dtos/pagination.dto';
 
@@ -21,12 +21,14 @@ export class ApplicationsService {
     private interviewsRepository: InterviewsRepository,
   ) {}
 
-  async getJobs(userId: string, dto: JobFiltersDto): Promise<CursorPaginatedResult<JobApplicationWithStageResponseDto>> {
+  async getJobs(userId: string, dto: JobListRequestDto): Promise<CursorPaginatedResult<JobApplicationWithStageResponseDto>> {
     const result = await this.applicationsRepository.findWithPagination({
       userId,
       sort: dto.sort,
-      filters: dto.filters,
       pagination: dto.pagination,
+      search: dto.filters?.search,
+      filters: dto.filters?.column_filters,
+      isArchived: dto.filters?.is_archived,
     });
 
     return {
@@ -35,8 +37,13 @@ export class ApplicationsService {
     };
   }
 
-  async getJobsCount(userId: string, dto: JobFiltersBaseDto): Promise<{ count: number }> {
-    const count = await this.applicationsRepository.countByFilters(userId, dto);
+  async getJobsCount(userId: string, dto: JobFiltersDto): Promise<{ count: number }> {
+    const count = await this.applicationsRepository.countByFilters({
+      userId,
+      search: dto.search,
+      filters: dto.column_filters,
+      isArchived: dto.is_archived,
+    });
 
     return { count };
   }

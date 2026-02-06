@@ -3,7 +3,7 @@ import { Injectable } from '@nestjs/common';
 import { UserCreateInput, UserGetOutput, UserUpdateInput } from 'src/db/types/db.types';
 
 @Injectable()
-export class UsersRepository {
+export class UserRepository {
   constructor(private kysely: DatabaseService) {}
 
   async createUser(data: UserCreateInput): Promise<UserGetOutput> {

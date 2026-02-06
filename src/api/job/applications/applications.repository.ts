@@ -4,46 +4,56 @@ import { Pagination } from 'src/db/helpers/pagination.helper';
 import { JobApplicationQueryBuilder } from './strategies/resolvers/job-application-query-builder.helper';
 import type { JobApplicationGetOutput, JobApplicationCreateInput, JobApplicationUpdateInput } from 'src/db/types/db.types';
 import type { CursorPaginatedResult } from 'src/shared/dtos/pagination.dto';
-import type { JobApplicationWithStageRow, FindWithPaginationInput } from './types/applications.repository.types';
-import type { JobFiltersBaseDto } from './dto/application.dto';
+import type {
+  JobApplicationWithStageRow,
+  FindWithPaginationInput,
+  CountByFiltersInput,
+} from './types/applications.repository.types';
+
+// Base columns selected for job applications with stage
+const BASE_SELECT_COLUMNS = [
+  'ja.id',
+  'ja.user_id',
+  'ja.stage_id',
+  'ja.company_name',
+  'ja.job_title',
+  'ja.salary_min',
+  'ja.salary_max',
+  'ja.job_description',
+  'ja.notes',
+  'ja.applied_at',
+  'ja.is_archived',
+  'ja.archived_at',
+  'ja.created_at',
+  'ja.updated_at',
+
+  'js.user_id as stage_user_id',
+  'js.name as stage_name',
+  'js.color as stage_color',
+  'js.category as stage_category',
+  'js.position as stage_position',
+  'js.created_at as stage_created_at',
+  'js.updated_at as stage_updated_at',
+] as const;
 
 @Injectable()
 export class ApplicationsRepository {
   constructor(private kysely: DatabaseService) {}
 
   async findWithPagination(input: FindWithPaginationInput): Promise<CursorPaginatedResult<JobApplicationWithStageRow>> {
-    const { sort, userId, filters, pagination } = input;
+    const { userId, search, isArchived, filters, sort, pagination } = input;
 
-    let query = this.kysely.db
+    // When sorting by custom column, we need to filter the join by column_id
+    // Otherwise we get duplicate rows (one per column value per job)
+    const sortColumnId = sort?.column_id ?? null;
+
+    const query = this.kysely.db
       .selectFrom('job_applications as ja')
       .innerJoin('job_stages as js', 'js.id', 'ja.stage_id')
-      .select([
-        'ja.id',
-        'ja.user_id',
-        'ja.stage_id',
-        'ja.company_name',
-        'ja.job_title',
-        'ja.salary_min',
-        'ja.salary_max',
-        'ja.job_description',
-        'ja.notes',
-        'ja.applied_at',
-        'ja.is_archived',
-        'ja.archived_at',
-        'ja.created_at',
-        'ja.updated_at',
-
-        'js.user_id as stage_user_id',
-        'js.name as stage_name',
-        'js.color as stage_color',
-        'js.category as stage_category',
-        'js.position as stage_position',
-        'js.created_at as stage_created_at',
-        'js.updated_at as stage_updated_at',
-      ])
-      .where('ja.user_id', '=', userId);
-
-    query = query.where(eb => eb.and(JobApplicationQueryBuilder.applyFilters(eb, filters)));
+      .leftJoin('job_column_values as jcv', join => join.onRef('jcv.job_id', '=', 'ja.id').on('jcv.column_id', '=', sortColumnId))
+      .select([...BASE_SELECT_COLUMNS, 'jcv.value as custom_column_value'])
+      .where('ja.user_id', '=', userId)
+      .where(eb => eb.and(JobApplicationQueryBuilder.applyFilters(eb, { search, isArchived, filters })));
 
     return Pagination.cursor(query, {
       take: pagination.take,
@@ -52,13 +62,14 @@ export class ApplicationsRepository {
     });
   }
 
-  async countByFilters(userId: string, filters: JobFiltersBaseDto): Promise<number> {
+  async countByFilters(input: CountByFiltersInput): Promise<number> {
+    const { userId, search, isArchived, filters } = input;
+
     const result = await this.kysely.db
       .selectFrom('job_applications as ja')
-      .innerJoin('job_stages as js', 'js.id', 'ja.stage_id')
       .select(eb => eb.fn.count('ja.id').as('count'))
       .where('ja.user_id', '=', userId)
-      .where(eb => eb.and(JobApplicationQueryBuilder.applyFilters(eb, filters)))
+      .where(eb => eb.and(JobApplicationQueryBuilder.applyFilters(eb, { search, isArchived, filters })))
       .executeTakeFirst();
 
     return Number(result?.count ?? 0);
@@ -73,30 +84,7 @@ export class ApplicationsRepository {
       .selectFrom('job_applications as ja')
       .innerJoin('job_stages as js', 'js.id', 'ja.stage_id')
       .where('ja.id', '=', id)
-      .select([
-        'ja.id',
-        'ja.user_id',
-        'ja.stage_id',
-        'ja.company_name',
-        'ja.job_title',
-        'ja.salary_min',
-        'ja.salary_max',
-        'ja.job_description',
-        'ja.notes',
-        'ja.applied_at',
-        'ja.is_archived',
-        'ja.archived_at',
-        'ja.created_at',
-        'ja.updated_at',
-
-        'js.user_id as stage_user_id',
-        'js.name as stage_name',
-        'js.color as stage_color',
-        'js.category as stage_category',
-        'js.position as stage_position',
-        'js.created_at as stage_created_at',
-        'js.updated_at as stage_updated_at',
-      ])
+      .select(BASE_SELECT_COLUMNS)
       .executeTakeFirst();
   }
 

@@ -4,7 +4,7 @@ import { JwtService } from '@nestjs/jwt';
 import { TokenService } from './token.service';
 import { JwtTokenDecode } from './types/types';
 import { AuthRepository } from './auth.repository';
-import { UsersRepository } from '../user/users/users.repository';
+import { UserRepository } from '../user/user.repository';
 import { StagesService } from '../job/stages/stages.service';
 import { OAuthStrategyFactory } from './strategies/oauth-strategy.factory';
 import { OAuthSignInInput, SignInInput, SignUpInput, TokensOutput } from './types/auth.service.types';
@@ -22,7 +22,7 @@ export class AuthService {
     private jwtService: JwtService,
     private tokenService: TokenService,
     private authRepository: AuthRepository,
-    private userRepository: UsersRepository,
+    private userRepository: UserRepository,
     private stagesService: StagesService,
     private oAuthStrategyFactory: OAuthStrategyFactory,
   ) {}

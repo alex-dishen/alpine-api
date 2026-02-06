@@ -1,5 +1,6 @@
 import { Base64 } from 'src/shared/utils/base64/base64';
 import { InternalServerErrorException } from '@nestjs/common';
+import { sql } from 'kysely';
 import type { ReferenceExpression, SelectQueryBuilder } from 'kysely';
 import type {
   CursorPaginatedResult,
@@ -31,30 +32,81 @@ export class Pagination {
     return cursorData;
   }
 
+  /**
+   * Determines if cursor value being NULL means we're at the "end" for this column
+   * (no more rows can come after just by comparing this column)
+   */
+  private static isNullAtEnd(direction: 'asc' | 'desc', nulls: 'first' | 'last' | undefined): boolean {
+    // PostgreSQL defaults: ASC = NULLS LAST, DESC = NULLS FIRST
+    const effectiveNulls = nulls ?? (direction === 'asc' ? 'last' : 'first');
+
+    // NULL is at "end" when:
+    // - ASC + NULLS LAST: nulls come after all values (at the end)
+    // - DESC + NULLS FIRST: nulls come first, but in DESC that means they're "greatest" (at the end)
+    return (direction === 'asc' && effectiveNulls === 'last') || (direction === 'desc' && effectiveNulls === 'first');
+  }
+
   private static buildCursorWhere<DB, TB extends keyof DB, O>(
     qb: SelectQueryBuilder<DB, TB, O>,
     cursorValues: Record<string, unknown>,
     orderBy: CursorPaginationOptionsOrderBy<ReferenceExpression<DB, TB>, O>[],
   ) {
     return qb.where(eb => {
-      const orConditions = orderBy.map((order, i) => {
-        const { column, direction, selectColumn } = order;
+      const orConditions: ReturnType<typeof eb.and>[] = [];
 
+      for (let i = 0; i < orderBy.length; i++) {
+        const { column, direction, selectColumn, nulls } = orderBy[i];
+        const cursorValue = cursorValues[String(selectColumn)];
+
+        // Build equality conditions for all previous columns
         const equalsConditions = [];
         for (let j = 0; j < i; j++) {
           const prev = orderBy[j];
-          equalsConditions.push(eb(prev.column, '=', cursorValues[String(prev.selectColumn)]));
+          const prevValue = cursorValues[String(prev.selectColumn)];
+
+          if (prevValue === null) {
+            equalsConditions.push(eb(prev.column, 'is', null));
+          } else {
+            equalsConditions.push(eb(prev.column, '=', prevValue));
+          }
         }
 
-        const operator = direction === 'asc' ? '>' : '<';
-        const compareCondition = eb(column, operator, cursorValues[String(selectColumn)]);
+        if (cursorValue === null) {
+          // Cursor value is NULL - special handling needed
+          if (this.isNullAtEnd(direction, nulls)) {
+            // NULL is at the end for this column, so no rows come "after" by this column alone
+            // Skip adding a condition for this column - only tiebreaker columns matter
+            // Don't add to orConditions, continue to next column
+            continue;
+          } else {
+            // NULL is at the beginning (NULLS FIRST with ASC, or NULLS LAST with DESC)
+            // "After null" means any non-null value
+            const compareCondition = eb(column, 'is not', null);
 
-        if (equalsConditions.length === 0) {
-          return compareCondition;
+            if (equalsConditions.length === 0) {
+              orConditions.push(compareCondition);
+            } else {
+              orConditions.push(eb.and([...equalsConditions, compareCondition]));
+            }
+          }
         } else {
-          return eb.and([...equalsConditions, compareCondition]);
+          // Cursor value is not NULL - standard comparison
+          const operator = direction === 'asc' ? '>' : '<';
+          const compareCondition = eb(column, operator, cursorValue);
+
+          if (equalsConditions.length === 0) {
+            orConditions.push(compareCondition);
+          } else {
+            orConditions.push(eb.and([...equalsConditions, compareCondition]));
+          }
         }
-      });
+      }
+
+      // If all columns had NULL at end, we've exhausted all results
+      if (orConditions.length === 0) {
+        // Return a condition that matches nothing
+        return sql<boolean>`false`;
+      }
 
       return eb.or(orConditions);
     });
