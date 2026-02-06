@@ -66,9 +66,23 @@ export class JobApplicationResponseDto {
   updated_at: Date | null;
 }
 
+export class JobApplicationColumnValueResponseDto {
+  @ApiProperty({ format: 'uuid' })
+  column_id: string;
+
+  @ApiPropertyOptional({ format: 'uuid', type: String, nullable: true })
+  option_id: string | null;
+
+  @ApiPropertyOptional({ type: String, nullable: true })
+  value: string | null;
+}
+
 export class JobApplicationWithStageResponseDto extends JobApplicationResponseDto {
   @ApiProperty({ type: JobStageResponseDto })
   stage: JobStageResponseDto;
+
+  @ApiProperty({ type: [JobApplicationColumnValueResponseDto] })
+  column_values: JobApplicationColumnValueResponseDto[];
 }
 
 export class JobApplicationWithDetailsResponseDto extends JobApplicationResponseDto {

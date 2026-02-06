@@ -31,8 +31,11 @@ export class ApplicationsService {
       isArchived: dto.filters?.is_archived,
     });
 
+    const jobIds = result.data.map(row => row.id);
+    const columnValueRows = await this.columnValuesRepository.findColumnValuesByJobIds(jobIds);
+
     return {
-      data: ApplicationsMapper.toJobApplicationWithStageResponseDto(result.data),
+      data: ApplicationsMapper.toJobApplicationWithStageResponseDto(result.data, columnValueRows),
       pagination: result.pagination,
     };
   }
@@ -56,7 +59,7 @@ export class ApplicationsService {
     }
 
     const [columnValueRows, interviews] = await Promise.all([
-      this.columnValuesRepository.findColumnValuesByJobId(id),
+      this.columnValuesRepository.findColumnValuesByJobIds([id]),
       this.interviewsRepository.findByJobId(id),
     ]);
 

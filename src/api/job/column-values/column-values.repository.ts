@@ -7,11 +7,13 @@ import { ColumnValueWithOptionRow } from './types/column-values.repository.types
 export class ColumnValuesRepository {
   constructor(private kysely: DatabaseService) {}
 
-  async findColumnValuesByJobId(jobId: string): Promise<ColumnValueWithOptionRow[]> {
+  async findColumnValuesByJobIds(jobIds: string[]): Promise<ColumnValueWithOptionRow[]> {
+    if (jobIds.length === 0) return [];
+
     return this.kysely.db
       .selectFrom('job_column_values as jcv')
       .leftJoin('job_column_options as jco', 'jco.id', 'jcv.option_id')
-      .where('jcv.job_id', '=', jobId)
+      .where('jcv.job_id', 'in', jobIds)
       .select([
         'jcv.id',
         'jcv.job_id',

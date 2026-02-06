@@ -4,7 +4,40 @@ import type { JobApplicationWithDetailsResponseDto, JobApplicationWithStageRespo
 import type { ColumnValueWithOptionRow } from '../../column-values/types/column-values.repository.types';
 
 export class ApplicationsMapper {
-  static toJobApplicationWithStageResponseDto(rows: JobApplicationWithStageRow[]): JobApplicationWithStageResponseDto[] {
+  private static toColumnValuesWithOptions(rows: ColumnValueWithOptionRow[]) {
+    return rows.map(cv => ({
+      id: cv.id,
+      job_id: cv.job_id,
+      column_id: cv.column_id,
+      option_id: cv.option_id,
+      value: cv.value,
+      created_at: cv.created_at,
+      updated_at: cv.updated_at,
+      option: cv.option_id_nested
+        ? {
+            id: cv.option_id_nested,
+            column_id: cv.option_column_id!,
+            label: cv.option_label!,
+            color: cv.option_color!,
+            position: cv.option_position!,
+            created_at: cv.option_created_at!,
+            updated_at: cv.option_updated_at!,
+          }
+        : null,
+    }));
+  }
+
+  static toJobApplicationWithStageResponseDto(
+    rows: JobApplicationWithStageRow[],
+    columnValueRows: ColumnValueWithOptionRow[] = [],
+  ): JobApplicationWithStageResponseDto[] {
+    const valuesByJobId = new Map<string, ColumnValueWithOptionRow[]>();
+    for (const cv of columnValueRows) {
+      const existing = valuesByJobId.get(cv.job_id) ?? [];
+      existing.push(cv);
+      valuesByJobId.set(cv.job_id, existing);
+    }
+
     return rows.map(row => ({
       id: row.id,
       user_id: row.user_id,
@@ -30,29 +63,11 @@ export class ApplicationsMapper {
         created_at: row.stage_created_at,
         updated_at: row.stage_updated_at,
       },
-    }));
-  }
-
-  private static toColumnValuesWithOptions(rows: ColumnValueWithOptionRow[]) {
-    return rows.map(cv => ({
-      id: cv.id,
-      job_id: cv.job_id,
-      column_id: cv.column_id,
-      option_id: cv.option_id,
-      value: cv.value,
-      created_at: cv.created_at,
-      updated_at: cv.updated_at,
-      option: cv.option_id_nested
-        ? {
-            id: cv.option_id_nested,
-            column_id: cv.option_column_id!,
-            label: cv.option_label!,
-            color: cv.option_color!,
-            position: cv.option_position!,
-            created_at: cv.option_created_at!,
-            updated_at: cv.option_updated_at!,
-          }
-        : null,
+      column_values: (valuesByJobId.get(row.id) ?? []).map(cv => ({
+        column_id: cv.column_id,
+        option_id: cv.option_id,
+        value: cv.value,
+      })),
     }));
   }
 
